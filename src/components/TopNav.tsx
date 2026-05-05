@@ -33,7 +33,7 @@ export function TopNav() {
         <span className="topnav__brand-mark" aria-hidden />
         DEEP_SEA_ARCHIVE
       </a>
-      <div className="topnav__links">
+      {/* <div className="topnav__links">
         {links.map((l) => (
           <a
             key={l.label}
@@ -44,9 +44,9 @@ export function TopNav() {
             {l.label}
           </a>
         ))}
-      </div>
+      </div> */}
       <a href="#contact" className="topnav__cta">
-        Contact_Station
+        Contact Station
       </a>
     </nav>
   );
