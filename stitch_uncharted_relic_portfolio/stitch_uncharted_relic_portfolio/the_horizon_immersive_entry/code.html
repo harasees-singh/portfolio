@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DEEP_SEA_ARCHIVE | SURFACE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#0e2a3a",
+                    "on-tertiary-fixed-variant": "#004c69",
+                    "on-tertiary-container": "#005371",
+                    "secondary-fixed": "#dae2fd",
+                    "on-secondary": "#1a3a4a",
+                    "on-surface": "#e0f2fe",
+                    "on-primary-container": "#00574d",
+                    "secondary-container": "#234a61",
+                    "tertiary-fixed": "#c4e7ff",
+                    "error": "#ffb4ab",
+                    "surface-bright": "#1e4d66",
+                    "on-secondary-container": "#bae6fd",
+                    "surface-tint": "#38bdf8",
+                    "surface-container-lowest": "#020617",
+                    "on-error": "#690005",
+                    "inverse-on-surface": "#0f172a",
+                    "on-tertiary": "#00354a",
+                    "primary-container": "#0ea5e9",
+                    "surface": "#071926",
+                    "tertiary-fixed-dim": "#7bd0ff",
+                    "on-primary-fixed": "#00201c",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "on-primary-fixed-variant": "#005047",
+                    "surface-container-low": "#0b212f",
+                    "on-secondary-fixed": "#131b2e",
+                    "outline": "#64748b",
+                    "primary-fixed": "#7dd3fc",
+                    "error-container": "#93000a",
+                    "primary-fixed-dim": "#38bdf8",
+                    "on-tertiary-fixed": "#001e2c",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-highest": "#13354a",
+                    "outline-variant": "#334155",
+                    "secondary": "#7dd3fc",
+                    "inverse-surface": "#e2e8f0",
+                    "inverse-primary": "#0369a1",
+                    "on-surface-variant": "#94a3b8",
+                    "surface-dim": "#071926",
+                    "on-primary": "#082f49",
+                    "on-background": "#e0f2fe",
+                    "tertiary-container": "#5ec9ff",
+                    "surface-container-high": "#112f41",
+                    "background": "#071926",
+                    "surface-variant": "#13354a",
+                    "tertiary": "#afe0ff",
+                    "primary": "#38bdf8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "0.5rem",
+                    "xl": "4rem",
+                    "md": "1.5rem",
+                    "gutter": "1.5rem",
+                    "margin": "2rem",
+                    "lg": "2.5rem",
+                    "sm": "1rem",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "h1": ["Newsreader"],
+                    "h2": ["Newsreader"],
+                    "body-lg": ["Inter"],
+                    "h3": ["Newsreader"],
+                    "code": ["Inter"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["1rem", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h1": ["4.5rem", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "300"}],
+                    "h2": ["3rem", {"lineHeight": "1.2", "fontWeight": "400"}],
+                    "body-lg": ["1.125rem", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h3": ["2rem", {"lineHeight": "1.3", "fontWeight": "400"}],
+                    "code": ["0.875rem", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "label-caps": ["0.75rem", {"lineHeight": "1rem", "letterSpacing": "0.1em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { background-color: #071926; overflow-x: hidden; }
+        .water-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            box-shadow: 0 0 15px #38bdf8;
+        }
+        .marine-snow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle, #ffffff11 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        .hero-vignette {
+            background: linear-gradient(to bottom, rgba(7, 25, 38, 0.2) 0%, rgba(7, 25, 38, 0.4) 60%, #071926 100%);
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full border-b border-sky-500/10 bg-slate-950/20 backdrop-blur-md flex justify-between items-center px-12 py-4 z-50 transition-all duration-700 ease-in-out shadow-[inset_0_1px_0_0_rgba(56,189,248,0.05)] border-b border-sky-900/30">
+<div class="text-sky-400 font-bold tracking-tighter text-lg font-serif uppercase">
+        DEEP_SEA_ARCHIVE
+    </div>
+<div class="flex space-x-8">
+<a class="font-serif tracking-widest uppercase text-xs text-sky-300 border-b border-sky-400 pb-1 transition-all duration-700 ease-in-out" href="#">SURFACE</a>
+<a class="font-serif tracking-widest uppercase text-xs text-sky-200/60 hover:text-sky-400 transition-colors transition-all duration-700 ease-in-out hover:bg-sky-500/5" href="#">EXPLORATION</a>
+<a class="font-serif tracking-widest uppercase text-xs text-sky-200/60 hover:text-sky-400 transition-colors transition-all duration-700 ease-in-out hover:bg-sky-500/5" href="#">LOGS</a>
+</div>
+<button class="font-serif tracking-widest uppercase text-xs px-4 py-2 border border-sky-500/30 text-sky-400 hover:bg-sky-400/10 transition-all duration-700 ease-in-out">
+        CONTACT_STATION
+    </button>
+</nav>
+<!-- Side Depth Tracker -->
+<aside class="fixed right-8 top-1/2 -translate-y-1/2 h-2/3 w-12 flex flex-col items-center justify-between py-8 z-40 border-r border-sky-500/10 cursor-crosshair">
+<div class="flex flex-col items-center space-y-12">
+<div class="flex flex-col items-center group">
+<span class="material-symbols-outlined font-serif text-[10px] tracking-[0.2em] font-light text-sky-400 scale-125 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]" data-icon="light_mode">light_mode</span>
+<span class="font-serif text-[10px] tracking-[0.2em] font-light uppercase mt-2 text-sky-400">SUNLIT</span>
+</div>
+<div class="flex flex-col items-center group opacity-40 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined font-serif text-[10px] tracking-[0.2em] font-light text-sky-300" data-icon="water_drop">water_drop</span>
+<span class="font-serif text-[10px] tracking-[0.2em] font-light uppercase mt-2 text-sky-300 group-hover:text-sky-100">TWILIGHT</span>
+</div>
+<div class="flex flex-col items-center group opacity-40 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined font-serif text-[10px] tracking-[0.2em] font-light text-sky-300" data-icon="waves">waves</span>
+<span class="font-serif text-[10px] tracking-[0.2em] font-light uppercase mt-2 text-sky-300 group-hover:text-sky-100">ABYSSAL</span>
+</div>
+<div class="flex flex-col items-center group opacity-40 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined font-serif text-[10px] tracking-[0.2em] font-light text-sky-300" data-icon="visibility_off">visibility_off</span>
+<span class="font-serif text-[10px] tracking-[0.2em] font-light uppercase mt-2 text-sky-300 group-hover:text-sky-100">HADAL</span>
+</div>
+</div>
+<div class="flex flex-col items-center mt-auto group opacity-40 hover:opacity-100 transition-all">
+<span class="material-symbols-outlined font-serif text-[10px] tracking-[0.2em] font-light text-sky-300" data-icon="terminal">terminal</span>
+<span class="font-serif text-[10px] tracking-[0.2em] font-light uppercase mt-2 text-sky-300 group-hover:text-sky-100">TERMINAL</span>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="relative min-h-screen">
+<!-- Hero Section: Full Screen with Image 14 Background -->
+<section class="relative h-screen w-full flex flex-col justify-center overflow-hidden">
+<!-- Background Layer -->
+<div class="absolute inset-0 z-0">
+<img alt="Deep sea background" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uiu5E-oFWntHDW7TlcjXFkuRe2prRYLJiGWdlclv2I3vTtiDr6JaZb38Y_6SHIcdhTzsMw-dICigDmopXT45ZqKPekhu_wmD2SR_XzL-9g6s04oxuJRyj0LdX9xxjxJ6P-j218pgpCE5N_whfN2n8bkNDwv7MLD8-t-VZHi9pepPE4MYk4Q-qjgdV8B8AzVXJOXMfs5agkCK_1ZVKEB4hY7biyrl8vLPn-M5GJ6ipejJ2qPz9DYQjMx8iJdN9JRDuAlV9cnrOOf1Q"/>
+<div class="absolute inset-0 hero-vignette"></div>
+</div>
+<!-- Title Content -->
+<div class="relative z-10 flex flex-col items-center justify-center text-center px-12">
+<div class="flex flex-col items-center gap-4 bg-slate-950/20 backdrop-blur-sm p-12 rounded-2xl border border-white/5">
+<span class="font-label-caps text-white/90 tracking-[0.5em] uppercase text-sm drop-shadow-md">ABYSS ENGINEERING</span>
+<h1 class="font-h1 text-h1 text-white max-w-5xl italic drop-shadow-2xl text-glow">Charting the depths of backend architecture.</h1>
+</div>
+</div>
+<!-- Seamless Transition Divider -->
+<div class="absolute bottom-0 left-0 w-full z-20">
+<div class="water-line w-full opacity-30"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-950/80 border border-sky-500/30 px-6 py-1.5 rounded-full backdrop-blur-lg">
+<span class="font-code text-sky-400 text-[10px] tracking-[0.3em] uppercase">Depth 0m / Surface_Node</span>
+</div>
+</div>
+</section>
+<!-- Section 2: Sunlit/Twilight Zones -->
+<section class="min-h-screen relative bg-gradient-to-b from-[#071926] via-[#0b212f] to-[#0e2a3a] flex flex-col items-center justify-start overflow-hidden">
+<div class="marine-snow"></div>
+<div class="mt-24 w-full max-w-7xl mx-auto px-12 grid grid-cols-12 gap-gutter relative z-10">
+<!-- Bento Grid Content -->
+<div class="col-span-12 md:col-span-8 flex flex-col gap-6">
+<div class="bg-surface-container-low/40 backdrop-blur-xl border border-sky-500/10 p-lg rounded-xl flex flex-col justify-end min-h-[350px] group transition-all duration-700 hover:border-sky-500/30">
+<div class="flex items-center gap-4 mb-4">
+<span class="h-px w-12 bg-sky-500/50"></span>
+<span class="font-label-caps text-sky-500/70">SUBMERGED SYSTEMS</span>
+</div>
+<h3 class="font-h3 text-h3 text-sky-50 mb-4">Scalable Architectures for Uncharted Environments</h3>
+<p class="font-body-md text-on-surface-variant max-w-xl">
+                        Deploying resilient infrastructure requires more than just code. It demands an understanding of the immense pressure and isolation found in the furthest reaches of the data ecosystem.
+                    </p>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-high/60 backdrop-blur-xl border border-sky-500/10 p-md rounded-xl h-full flex flex-col justify-center items-center text-center">
+<div class="w-24 h-24 mb-6 rounded-full border-2 border-sky-500/20 flex items-center justify-center bg-sky-950/30">
+<span class="material-symbols-outlined text-sky-400 text-4xl" data-icon="dns">dns</span>
+</div>
+<span class="font-code text-sky-400 text-xs uppercase tracking-widest mb-2">System Status</span>
+<span class="font-h3 text-sky-100">STABLE</span>
+</div>
+</div>
+</div>
+<!-- Scroll to Descend Prompt -->
+<div class="mt-24 mb-12 flex flex-col items-center gap-4 group cursor-pointer relative z-10">
+<span class="font-label-caps text-sky-500/50 group-hover:text-sky-400 transition-colors">Scroll to Descend</span>
+<div class="w-px h-12 bg-gradient-to-b from-sky-500/50 to-transparent"></div>
+<span class="material-symbols-outlined text-sky-400 animate-bounce" data-icon="expand_more">expand_more</span>
+</div>
+</section>
+<!-- Contextual Deep Sea Data Visualization -->
+<section class="min-h-screen bg-[#0e2a3a] py-xl relative">
+<div class="max-w-7xl mx-auto px-12">
+<div class="flex justify-between items-end mb-12">
+<div>
+<span class="font-label-caps text-sky-500">MISSION_LOG_V2</span>
+<h2 class="font-h2 text-h2 text-sky-50">Exploration Metrics</h2>
+</div>
+<div class="text-right">
+<span class="font-code text-sky-700 block">CURRENT_DEPTH: 200m</span>
+<span class="font-code text-sky-700 block">TEMP: 8°C</span>
+</div>
+</div>
+<div class="relative border border-sky-500/10 rounded-xl overflow-hidden group">
+<img class="w-full aspect-video object-cover opacity-60 group-hover:opacity-80 transition-all duration-1000" data-alt="Deep sea telemetry dashboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB45d1WT6PekEL7Cu267Mf5JA2qcX0OHv_FBj7tJXw5phKw0aX9_8iPNOF5GmQXUqIxO5Bm2o1Nd8pYSXJAhxttK3MfLyVYWO0lQb1qRC_Knmt3H54lTBSGnLj26X6wmCj1MRhO23vgngt3ayxfnEYDddfmAM6X7Gnbm14HirOPOgBqO_4tuPPim5B_M7WGmCjw4sOu3OULTWo_DW62eUovZBrBKaaeCdAbrilYKCUI8gg14YOPWqUOPR3fw_WMpu9xXiYiPRZqpTI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<button class="bg-sky-500 text-slate-950 font-bold px-lg py-md rounded-lg flex items-center gap-4 hover:bg-sky-300 transition-all shadow-[0_0_30px_rgba(56,189,248,0.4)]">
+<span class="material-symbols-outlined" data-icon="play_arrow" data-weight="fill">play_arrow</span>
+                        INITIATE DESCENT
+                    </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-sky-900 bg-black flex flex-col md:flex-row justify-between items-center px-12 py-10 z-10">
+<div class="flex flex-col items-center md:items-start gap-2">
+<div class="text-sky-500 font-bold font-mono text-[9px] uppercase tracking-widest">DEEP_SEA_ARCHIVE</div>
+<p class="font-mono text-[9px] uppercase tracking-widest text-sky-800">©2024 SEABED_TERMINAL_v1.0.4</p>
+</div>
+<div class="flex gap-8 my-8 md:my-0">
+<a class="font-mono text-[9px] uppercase tracking-widest text-sky-800 hover:text-sky-400 transition-colors" href="#">ENCRYPTED_LINK</a>
+<a class="font-mono text-[9px] uppercase tracking-widest text-sky-800 hover:text-sky-400 transition-colors" href="#">CORE_SYSTEMS</a>
+<a class="font-mono text-[9px] uppercase tracking-widest text-sky-800 hover:text-sky-400 transition-colors" href="#">SIGNAL_OUT</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-sky-500 animate-pulse shadow-[0_0_5px_#38bdf8]"></div>
+<span class="font-mono text-[9px] uppercase tracking-widest text-sky-500">SYSTEM_ONLINE</span>
+</div>
+</footer>
+</body></html>
