@@ -202,13 +202,18 @@ canvas {
 
 .bg-stack__video {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  /* Show the full frame — no vertical overflow now that we want every pixel
-     of the source visible. cover keeps it filling the viewport on any aspect. */
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* Make the element wider than the viewport so the source's left-of-centre
+     island lands closer to the horizontal centre of the visible window.
+     Bigger width = island sits further right inside the viewport. */
+  width: 135%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 50%;
+  /* Anchor source to the LEFT side of the over-wide element, so the visible
+     window shows the LEFT (island) portion of the source. */
+  object-position: 0% 50%;
   filter: saturate(0.78) contrast(1) hue-rotate(-12deg) brightness(0.92);
   will-change: opacity, filter, transform;
 }
