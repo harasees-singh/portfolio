@@ -486,9 +486,11 @@ canvas {
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 0 var(--gap-xl);
+  /* anchor the plate to the lower portion of the viewport so the upper half
+     stays clear and the island/horizon in the video reads cleanly. */
+  padding: 0 var(--gap-xl) 16vh;
   overflow: hidden;
 }
 

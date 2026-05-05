@@ -14,35 +14,38 @@ import { OceanScene } from '../world/OceanScene';
  *   6. marine-snow CSS pattern (cheap parallax overlay)
  */
 export function BackgroundStack() {
-  const { scrollYProgress } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
 
   // The video PHYSICALLY moves up out of frame so the user feels they are
-  // sinking beneath the surface. By scroll=85% it is fully out of view.
-  const videoY = useTransform(scrollYProgress, [0, 1], ['0%', '-105%']);
+  // sinking beneath the surface. Tying this to scrollY (in pixels) instead of
+  // scrollYProgress means the surface recedes at nearly content speed — so
+  // the page no longer feels like it's moving faster than the ocean. The 0.9
+  // factor adds a tiny bit of parallax (background slightly slower than fg).
+  const videoY = useTransform(scrollY, (y) => `${-y * 0.9}px`);
 
-  // It stays opaque while in view; the small final fade just hides the very
-  // last pixels in case the translate doesn't quite clear the viewport.
-  const videoOpacity = useTransform(scrollYProgress, [0, 0.78, 0.92], [1, 1, 0]);
+  // Because the video now moves at near-content speed, it leaves the viewport
+  // after roughly one viewport-height of scroll. Fade it out across the tail
+  // end of that range so the cleanup is invisible.
+  const videoOpacity = useTransform(scrollYProgress, [0, 0.18, 0.26], [1, 1, 0]);
 
   // Subtle pull toward the camera (water gets denser, light gets compressed).
-  const videoScale = useTransform(scrollYProgress, [0, 1], [1.02, 1.12]);
+  const videoScale = useTransform(scrollYProgress, [0, 0.25], [1.02, 1.08]);
 
   // As we go deeper, water absorbs warm light → desaturate + shift toward cyan.
-  const videoHue = useTransform(scrollYProgress, [0, 1], [-6, -32]);
-  const videoSat = useTransform(scrollYProgress, [0, 1], [1.05, 0.55]);
-  const videoBright = useTransform(scrollYProgress, [0, 0.6], [1, 0.75]);
+  const videoHue = useTransform(scrollYProgress, [0, 0.25], [-12, -28]);
+  const videoSat = useTransform(scrollYProgress, [0, 0.25], [0.78, 0.55]);
+  const videoBright = useTransform(scrollYProgress, [0, 0.25], [0.92, 0.72]);
   const videoFilter = useTransform(
     [videoHue, videoSat, videoBright] as MotionValue<number>[],
-    ([h, s, b]) => `saturate(${s}) contrast(1.05) brightness(${b}) hue-rotate(${h}deg)`
+    ([h, s, b]) => `saturate(${s}) contrast(1) brightness(${b}) hue-rotate(${h}deg)`
   );
 
   // 3D ocean is visible underneath FROM THE START so the descent reveals it
-  // rather than fading to it. We start it dim so the surface video reads as the
-  // dominant layer at the top, then ease it up as we sink past the surface.
-  const canvasOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7], [0.25, 0.7, 1]);
+  // rather than fading to it. It eases up to full strength as the surface clears.
+  const canvasOpacity = useTransform(scrollYProgress, [0, 0.18, 0.5], [0.25, 0.7, 1]);
 
   // depth gradient grows stronger as user descends, but stays subtle
-  const gradientOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.7, 1]);
+  const gradientOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0.3, 0.7, 1]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -51,10 +54,10 @@ export function BackgroundStack() {
     const v = videoRef.current;
     if (!v) return;
     return scrollYProgress.on('change', (p) => {
-      if (p > 0.92 && !v.paused) v.pause();
-      else if (p <= 0.92 && v.paused) void v.play().catch(() => {});
+      if (p > 0.3 && !v.paused) v.pause();
+      else if (p <= 0.3 && v.paused) void v.play().catch(() => {});
     });
-  }, [scrollYProgress]);
+  }, [scrollY, scrollYProgress]);
 
   return (
     <div className="bg-stack" aria-hidden="true">
