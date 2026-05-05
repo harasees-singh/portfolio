@@ -13,7 +13,24 @@ import { OceanScene } from '../world/OceanScene';
  *   5. radial vignette
  *   6. marine-snow CSS pattern (cheap parallax overlay)
  */
-export function BackgroundStack() {
+export function BackgroundStack({ staticBackground = false }: { staticBackground?: boolean } = {}) {
+  // Static mode (deep-dive routes): render a quiet abyss-only backdrop with
+  // no video, no scroll bindings, and no R3F canvas. The descent narrative
+  // doesn't apply on those pages — they need to be calm to read.
+  if (staticBackground) {
+    return (
+      <div className="bg-stack bg-stack--static" aria-hidden="true">
+        <div className="bg-stack__static-fill" />
+        <div className="bg-stack__vignette" />
+        <div className="bg-stack__snow" />
+      </div>
+    );
+  }
+
+  return <BackgroundStackInteractive />;
+}
+
+function BackgroundStackInteractive() {
   const { scrollY, scrollYProgress } = useScroll();
 
   // The video PHYSICALLY moves up out of frame so the user feels they are

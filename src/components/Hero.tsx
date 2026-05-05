@@ -71,82 +71,60 @@ export function ScrollHint({ targetId }: { targetId: string }) {
 }
 
 /**
- * Sunlit zone — first true depth section (~30m). Holds the main H1 title and
- * uses the same eyebrow/title/telemetry header pattern as the deeper zones
- * so the descent reads as a continuous documentary rather than a hero plate.
- *
- * The sunlit waters are where the engineer is most at home — these are the
- * "districts" of strongest proficiency, framed as a cartographer's chart of
- * data territories. The metaphor matches the deep-sea narrative: bright,
- * abundant, and well-mapped at the surface; pressure (depth) will reveal a
- * different set of strengths in the zones below.
+ * Sunlit zone — first true depth section (~30m). Renders as a minimal
+ * teaser on the landing page and links to the Sunlit deep-dive route for
+ * the full atlas.
  */
-export function Hero() {
+export function Hero({ onExplore }: { onExplore: (slug: string) => void }) {
   return (
     <section id="sunlit-hero" className="hero">
       <div className="shell">
-        <header className="zone__header">
-          <div>
-            <div className="zone__eyebrow">Sunlit Zone</div>
-            <h1 className="hero__title">Charting the depths of databases and storage</h1>
-          </div>
-          <div className="zone__telemetry">
-            <span>CURRENT_DEPTH: 30m</span>
-            <span>TEMP: 22°C</span>
-          </div>
-        </header>
-        <p className="hero__subtitle">
-          The sunlit waters — where the map is bright and the trade routes are well-worn.
-          These are the data territories I navigate every day, the districts I know by
-          heart.
-        </p>
-
         <motion.div
-          className="hero__atlas"
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.3 }}
           variants={{ show: { transition: { staggerChildren: 0.08 } } }}
         >
-          <DistrictCard
-            districtNumber="01"
-            district="The Relational Empire"
-            heading="SQL"
-            body="The capital city of every serious backend I ship. Schema design, query
-                  planning along the Declarative River, indexing strategy, and transaction
-                  semantics for long-lived OLTP workloads."
-            tags={['PostgreSQL', 'MySQL', 'SQL Server', 'Oracle', 'DB2']}
-          />
-          <DistrictCard
-            districtNumber="02"
-            district="Document Data District"
-            heading="NoSQL Document Stores"
-            body="Flexible-schema modelling along Cape JSON — denormalised reads, change
-                  streams, and TTL-driven hygiene for product surfaces that move faster
-                  than a rigid schema can keep up."
-            tags={['MongoDB', 'CouchDB', 'RethinkDB', 'HyperDex']}
-          />
-          <DistrictCard
-            districtNumber="03"
-            district="Column-Family District"
-            heading="NoSQL Wide Column Stores"
-            body="Wide-row stores for analytics and time-series at scale. Partition keys
-                  that survive growth, tunable consistency, and compaction strategies that
-                  keep tail latency honest."
-            tags={['HBase', 'Cassandra']}
-          />
-          <DistrictCard
-            districtNumber="04"
-            district="Key-Value District"
-            heading="NoSQL Key-Value Stores"
-            body="Hot paths, rate limiters, distributed locks, idempotency keys, and the
-                  cache layer that quietly absorbs an order of magnitude of traffic before
-                  anyone notices."
-            tags={['Redis', 'Aerospike', 'Riak', 'Voldemort', 'Berkeley DB']}
-          />
+          <motion.header className="zone__header" variants={fadeUp}>
+            <div>
+              <div className="zone__eyebrow">Sunlit Zone</div>
+              <h1 className="hero__title">Charting the depths of databases and storage.</h1>
+            </div>
+            <div className="zone__telemetry">
+              <span>CURRENT_DEPTH: 30m</span>
+              <span>TEMP: 22°C</span>
+            </div>
+          </motion.header>
+
+          <motion.p className="hero__subtitle" variants={fadeUp}>
+            The sunlit waters — where the map is bright and the trade routes are
+            well-worn. The data territories I navigate every day, the districts I know
+            by heart before the pressure starts to mount.
+          </motion.p>
+
+          <motion.div variants={fadeUp}>
+            <ExploreLink label="Chart the Sunlit territories" onClick={() => onExplore('sunlit')} />
+          </motion.div>
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Animated link that reads as a continuation of the descent. Shared between
+ * the Hero and the deeper ZoneTeaser sections so the visual language is
+ * consistent across the landing page.
+ */
+export function ExploreLink({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" className="explore-link" onClick={onClick}>
+      <span className="explore-link__label">{label}</span>
+      <span className="explore-link__rule" aria-hidden />
+      <span className="icon explore-link__arrow" aria-hidden>
+        arrow_forward
+      </span>
+    </button>
   );
 }
 
