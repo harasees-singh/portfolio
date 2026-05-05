@@ -1,5 +1,10 @@
 import { motion } from 'framer-motion';
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
+};
+
 /**
  * Top of page — full viewport "Surface" entry. Anchored over the island in
  * the background video with a soft entrance and a continuous float so the
@@ -69,6 +74,12 @@ export function ScrollHint({ targetId }: { targetId: string }) {
  * Sunlit zone — first true depth section (~30m). Holds the main H1 title and
  * uses the same eyebrow/title/telemetry header pattern as the deeper zones
  * so the descent reads as a continuous documentary rather than a hero plate.
+ *
+ * The sunlit waters are where the engineer is most at home — these are the
+ * "districts" of strongest proficiency, framed as a cartographer's chart of
+ * data territories. The metaphor matches the deep-sea narrative: bright,
+ * abundant, and well-mapped at the surface; pressure (depth) will reveal a
+ * different set of strengths in the zones below.
  */
 export function Hero() {
   return (
@@ -77,7 +88,7 @@ export function Hero() {
         <header className="zone__header">
           <div>
             <div className="zone__eyebrow">Sunlit Zone</div>
-            <h1 className="hero__title">Charting the depths of backend architecture.</h1>
+            <h1 className="hero__title">Charting the depths of databases</h1>
           </div>
           <div className="zone__telemetry">
             <span>CURRENT_DEPTH: 30m</span>
@@ -85,10 +96,82 @@ export function Hero() {
           </div>
         </header>
         <p className="hero__subtitle">
-          Field notes from a software engineer descending through the layers of the modern
-          data ecosystem — from sunlit APIs to the silent pressure of the platform abyss.
+          The sunlit waters — where the map is bright and the trade routes are well-worn.
+          These are the data territories I navigate every day, the districts I know by
+          heart.
         </p>
+
+        <motion.div
+          className="hero__atlas"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{ show: { transition: { staggerChildren: 0.08 } } }}
+        >
+          <DistrictCard
+            districtNumber="01"
+            district="The Relational Empire"
+            heading="SQL"
+            body="The capital city of every serious backend I ship. Schema design, query
+                  planning along the Declarative River, indexing strategy, and transaction
+                  semantics for long-lived OLTP workloads."
+            tags={['PostgreSQL', 'MySQL', 'SQL Server', 'Oracle', 'DB2']}
+          />
+          <DistrictCard
+            districtNumber="02"
+            district="Document Data District"
+            heading="NoSQL Document Stores"
+            body="Flexible-schema modelling along Cape JSON — denormalised reads, change
+                  streams, and TTL-driven hygiene for product surfaces that move faster
+                  than a rigid schema can keep up."
+            tags={['MongoDB', 'CouchDB', 'RethinkDB', 'HyperDex']}
+          />
+          <DistrictCard
+            districtNumber="03"
+            district="Column-Family District"
+            heading="NoSQL Wide Column Stores"
+            body="Wide-row stores for analytics and time-series at scale. Partition keys
+                  that survive growth, tunable consistency, and compaction strategies that
+                  keep tail latency honest."
+            tags={['HBase', 'Cassandra']}
+          />
+          <DistrictCard
+            districtNumber="04"
+            district="Key-Value District"
+            heading="NoSQL Key-Value Stores"
+            body="Hot paths, rate limiters, distributed locks, idempotency keys, and the
+                  cache layer that quietly absorbs an order of magnitude of traffic before
+                  anyone notices."
+            tags={['Redis', 'Aerospike', 'Riak', 'Voldemort', 'Berkeley DB']}
+          />
+        </motion.div>
       </div>
     </section>
+  );
+}
+
+interface DistrictCardProps {
+  districtNumber: string;
+  district: string;
+  heading: string;
+  body: string;
+  tags: string[];
+}
+
+function DistrictCard({ districtNumber, district, heading, body, tags }: DistrictCardProps) {
+  return (
+    <motion.article className="atlas-card" variants={fadeUp}>
+      <div className="atlas-card__head">
+        <span className="atlas-card__num">{districtNumber}</span>
+        <span className="atlas-card__district">{district}</span>
+      </div>
+      <h3 className="atlas-card__heading">{heading}</h3>
+      <p className="atlas-card__body">{body}</p>
+      <ul className="atlas-card__tags">
+        {tags.map((t) => (
+          <li key={t}>{t}</li>
+        ))}
+      </ul>
+    </motion.article>
   );
 }
