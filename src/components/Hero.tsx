@@ -20,11 +20,10 @@ export function SurfaceEntry() {
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 7, ease: 'easeInOut', repeat: Infinity }}
           >
-            <span className="surface-entry__eyebrow">Deep_Sea_Archive · Mission 014</span>
-            <h2 className="surface-entry__wordmark">A descent through the platform.</h2>
+            <span className="surface-entry__eyebrow">Harasees Singh · Portfolio</span>
+            <h2 className="surface-entry__wordmark">A deep dive into my work.</h2>
             <p className="surface-entry__sub">
-              Field notes from beneath the surface — pulled from the same place the
-              numbers, the noise, and the cold-water APIs live.
+                A software engineer's field notes from the depths of backend architecture —
             </p>
           </motion.div>
         </motion.div>
@@ -67,15 +66,24 @@ export function ScrollHint({ targetId }: { targetId: string }) {
 }
 
 /**
- * Sunlit zone — first true depth section (~30m). Holds the main H1 plate so
- * the user reaches it by sinking past the surface, not by landing on it.
+ * Sunlit zone — first true depth section (~30m). Holds the main H1 title and
+ * uses the same eyebrow/title/telemetry header pattern as the deeper zones
+ * so the descent reads as a continuous documentary rather than a hero plate.
  */
 export function Hero() {
   return (
     <section id="sunlit-hero" className="hero">
-      <div className="hero__plate">
-        <span className="hero__eyebrow">Sunlit Zone · 30m</span>
-        <h1 className="hero__title">Charting the depths of backend architecture.</h1>
+      <div className="shell">
+        <header className="zone__header">
+          <div>
+            <div className="zone__eyebrow">Sunlit Zone</div>
+            <h1 className="hero__title">Charting the depths of backend architecture.</h1>
+          </div>
+          <div className="zone__telemetry">
+            <span>CURRENT_DEPTH: 30m</span>
+            <span>TEMP: 22°C</span>
+          </div>
+        </header>
         <p className="hero__subtitle">
           Field notes from a software engineer descending through the layers of the modern
           data ecosystem — from sunlit APIs to the silent pressure of the platform abyss.

@@ -692,7 +692,8 @@ canvas {
 }
 
 /* =============================================================
- * Hero
+ * Hero (Sunlit zone) — follows the same eyebrow/title/telemetry header
+ * pattern as the deeper Zone components, plus a body subtitle below.
  * ============================================================= */
 
 .hero {
@@ -702,98 +703,28 @@ canvas {
   min-height: 140vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 var(--gap-xl);
+  padding: 8rem 0;
   overflow: hidden;
-}
-
-.hero__plate {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  text-align: center;
-  padding: 3rem 3.5rem;
-  border-radius: var(--radius-xl);
-  background: rgba(2, 8, 15, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  max-width: 980px;
-}
-
-.hero__eyebrow {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero__title {
   font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(2.5rem, 6vw, 4.75rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-  text-shadow:
-    0 0 24px rgba(56, 189, 248, 0.32),
-    0 4px 24px rgba(0, 0, 0, 0.45);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #f0f9ff;
+  margin-top: 0.35rem;
   max-width: 22ch;
 }
 
 .hero__subtitle {
   font-family: var(--font-body);
   font-size: 1.05rem;
-  line-height: 1.6;
-  color: rgba(224, 242, 254, 0.78);
-  max-width: 56ch;
-}
-
-.hero__waterline {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.hero__waterline-bar {
-  position: absolute;
-  bottom: 28px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.65), transparent);
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
-  opacity: 0.5;
-}
-
-.hero__depth-pill {
-  position: relative;
-  margin-bottom: 14px;
-  padding: 0.4rem 1.1rem;
-  border-radius: 999px;
-  background: rgba(2, 6, 12, 0.78);
-  border: 1px solid rgba(56, 189, 248, 0.32);
-  backdrop-filter: blur(8px);
-  pointer-events: auto;
-}
-
-.hero__depth-pill span {
-  font-family: var(--font-code);
-  font-size: 0.65rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--primary);
+  line-height: 1.65;
+  color: var(--on-surface-variant);
+  max-width: 60ch;
+  margin-top: 1.5rem;
 }
 
 /* =============================================================

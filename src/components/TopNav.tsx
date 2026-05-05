@@ -31,20 +31,8 @@ export function TopNav() {
     <nav className="topnav">
       <a className="topnav__brand" href="#surface">
         <span className="topnav__brand-mark" aria-hidden />
-        DEEP_SEA_ARCHIVE
+        Deep Sea Archive
       </a>
-      {/* <div className="topnav__links">
-        {links.map((l) => (
-          <a
-            key={l.label}
-            href={l.href}
-            className="topnav__link"
-            data-active={active === l.label}
-          >
-            {l.label}
-          </a>
-        ))}
-      </div> */}
       <a href="#contact" className="topnav__cta">
         Contact Station
       </a>
