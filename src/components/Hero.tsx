@@ -57,28 +57,30 @@ export function ScrollHint({ targetId }: { targetId: string }) {
     document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <motion.div
-      className="scroll-hint"
-      style={{ opacity: fade, y: lift, pointerEvents: pointer }}
-    >
-      <motion.button
-        type="button"
-        className="scroll-hint__btn"
-        onClick={onClick}
-        aria-label="Scroll to descend"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const, delay: 1.6 }}
+    <div className="scroll-hint">
+      <motion.div
+        className="scroll-hint__inner"
+        style={{ opacity: fade, y: lift, pointerEvents: pointer }}
       >
-        <span className="scroll-hint__chip">
-          <span className="icon">expand_more</span>
-          <span>Scroll to descend</span>
-        </span>
-        <span className="scroll-hint__rail" aria-hidden>
-          <span className="scroll-hint__bead" />
-        </span>
-      </motion.button>
-    </motion.div>
+        <motion.button
+          type="button"
+          className="scroll-hint__btn"
+          onClick={onClick}
+          aria-label="Scroll to descend"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const, delay: 1.6 }}
+        >
+          <span className="scroll-hint__chip">
+            <span className="icon">expand_more</span>
+            <span>Scroll to descend</span>
+          </span>
+          <span className="scroll-hint__rail" aria-hidden>
+            <span className="scroll-hint__bead" />
+          </span>
+        </motion.button>
+      </motion.div>
+    </div>
   );
 }
 
