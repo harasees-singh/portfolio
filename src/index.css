@@ -450,28 +450,35 @@ canvas {
 }
 
 /* =============================================================
- * Surface entry — top of page, before the user has descended
+ * Surface entry — white text, no plate, centered horizontally and sitting
+ * in the upper portion of the viewport so it floats above the island.
  * ============================================================= */
 
 .surface-entry {
   position: relative;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8vh var(--gap-xl) 0;
+  overflow: hidden;
+}
+
+/* Outer wrapper handles the entrance animation. */
+.surface-entry__center {
+  position: absolute;
+  top: 18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(300px, 60vw, 720px);
+  z-index: 2;
   text-align: center;
 }
 
-.surface-entry__center {
+/* Inner element handles the continuous float. */
+.surface-entry__float {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-  max-width: 720px;
-  margin-bottom: auto;
-  margin-top: 12vh;
+  text-align: center;
+  gap: 1rem;
+  will-change: transform;
 }
 
 .surface-entry__eyebrow {
@@ -479,28 +486,121 @@ canvas {
   font-size: 0.7rem;
   letter-spacing: 0.42em;
   text-transform: uppercase;
-  color: rgba(186, 230, 253, 0.7);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 
 .surface-entry__wordmark {
   font-family: var(--font-display);
   font-style: italic;
-  font-weight: 300;
-  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
-  line-height: 1.2;
-  color: rgba(240, 249, 255, 0.92);
-  text-shadow: 0 2px 18px rgba(2, 8, 15, 0.55);
-  letter-spacing: -0.005em;
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.1;
+  color: #ffffff;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
+  letter-spacing: -0.01em;
 }
 
 .surface-entry__sub {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
-  color: rgba(224, 242, 254, 0.72);
-  max-width: 52ch;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.92);
+  max-width: 56ch;
+  margin: 0 auto;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 720px) {
+  .surface-entry__center {
+    top: 14vh;
+    width: calc(100% - 2.5rem);
+  }
+}
+
+/* Persistent scroll cue — a chip label and a falling-bead rail at the bottom
+   of the surface entry. The wrapper handles positioning so framer-motion's
+   transform on the inner element doesn't fight CSS centering. */
+.scroll-hint {
+  position: absolute;
+  bottom: 3.5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+}
+
+.scroll-hint__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  color: var(--primary-soft);
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.scroll-hint__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(2, 8, 15, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--primary);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.18);
+  animation: hint-breathe 3.6s ease-in-out infinite;
+}
+
+.scroll-hint__chip .icon {
+  font-size: 1.05rem;
+  animation: hint-arrow 1.8s ease-in-out infinite;
+}
+
+.scroll-hint__rail {
+  position: relative;
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.5), rgba(56, 189, 248, 0));
+  overflow: hidden;
+}
+
+.scroll-hint__bead {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
+  animation: bead-fall 2.4s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+
+@keyframes bead-fall {
+  0% { transform: translateY(-12px); opacity: 0; }
+  20% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(56px); opacity: 0; }
+}
+
+@keyframes hint-breathe {
+  0%, 100% { box-shadow: 0 0 24px rgba(56, 189, 248, 0.18); transform: translateY(0); }
+  50% { box-shadow: 0 0 36px rgba(56, 189, 248, 0.32); transform: translateY(2px); }
+}
+
+@keyframes hint-arrow {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(3px); opacity: 1; }
 }
 
 .surface-entry__waterline {
@@ -592,13 +692,13 @@ canvas {
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  /* Give the Sunlit hero a full extra screen of breathing room so the rail
+     stays on Sunlit while the user reads, rather than jumping to Twilight. */
+  min-height: 140vh;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  /* anchor the plate to the lower portion of the viewport so the upper half
-     stays clear and the island/horizon in the video reads cleanly. */
-  padding: 0 var(--gap-xl) 16vh;
+  padding: 0 var(--gap-xl);
   overflow: hidden;
 }
 

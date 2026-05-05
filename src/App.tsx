@@ -2,7 +2,7 @@ import './index.css';
 import { BackgroundStack } from './components/BackgroundStack';
 import { TopNav } from './components/TopNav';
 import { DepthRail } from './components/DepthRail';
-import { Hero, ScrollPrompt, SurfaceEntry } from './components/Hero';
+import { Hero, SurfaceEntry } from './components/Hero';
 import { Bento, Card, Zone } from './components/Zone';
 import { SiteFooter } from './components/SiteFooter';
 
@@ -16,7 +16,6 @@ export default function App() {
       <main>
         <SurfaceEntry />
         <Hero />
-        <ScrollPrompt targetId="twilight" />
 
         {/* TWILIGHT — Sunlit & Twilight Zones */}
         <Zone
@@ -157,7 +156,7 @@ export default function App() {
                   reply from somewhere very deep.
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <a className="action" href="mailto:hello@example.com">
+                  <a className="action" href="mailto:harasees1202@gmail.com">
                     <span className="icon icon--fill">send</span>
                     Initiate Transmission
                   </a>
