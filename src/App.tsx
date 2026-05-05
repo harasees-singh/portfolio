@@ -1,10 +1,6 @@
-
 import './index.css';
+import OceanScroll from './ocean/OceanScroll';
 
 export default function App() {
-  return (
-    <div className="landing-page">
-      <h1>Hi,</h1>
-    </div>
-  );
+  return <OceanScroll />;
 }
