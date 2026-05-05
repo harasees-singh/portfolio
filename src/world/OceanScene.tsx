@@ -199,24 +199,29 @@ function DescentCamera() {
 /**
  * Fog density grows with depth — this is what makes the abyss feel infinite
  * and seamlessly blends with the CSS gradient layers above the canvas.
+ * Stays inside the same teal family the video uses so the transition is subtle.
  */
 function DepthFog() {
   const { scrollYProgress } = useScroll();
   const fogRef = useRef<THREE.Fog | null>(null);
+  // shallow / mid / deep all stay in the surface-1..surface-4 family
+  const colorShallow = useMemo(() => new THREE.Color('#0e2a3a'), []);
+  const colorDeep = useMemo(() => new THREE.Color('#061521'), []);
+  const tmp = useMemo(() => new THREE.Color(), []);
 
   useFrame((state) => {
     const p = scrollYProgress.get();
     if (!state.scene.fog) {
-      state.scene.fog = new THREE.Fog('#03101a', 8, 28);
+      state.scene.fog = new THREE.Fog('#0e2a3a', 8, 28);
       fogRef.current = state.scene.fog as THREE.Fog;
     }
     const fog = state.scene.fog as THREE.Fog;
     // pull the far plane in as we descend → tighter visibility, deeper feel
-    fog.far = 28 - p * 14;
-    fog.near = 5 - p * 3;
-    // shift colour from twilight blue → near-black
-    const c = new THREE.Color('#0e2a3a').lerp(new THREE.Color('#02080f'), p);
-    fog.color.copy(c);
+    fog.far = 28 - p * 12;
+    fog.near = 5 - p * 2.5;
+    // gentle shift inside the same teal family — never goes pure black
+    tmp.copy(colorShallow).lerp(colorDeep, p);
+    fog.color.copy(tmp);
     state.scene.background = fog.color;
   });
 

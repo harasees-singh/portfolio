@@ -37,11 +37,12 @@ export function BackgroundStack() {
   );
 
   // 3D ocean is visible underneath FROM THE START so the descent reveals it
-  // rather than fading to it. It just gets richer as we go deeper.
-  const canvasOpacity = useTransform(scrollYProgress, [0, 0.4], [0.55, 1]);
+  // rather than fading to it. We start it dim so the surface video reads as the
+  // dominant layer at the top, then ease it up as we sink past the surface.
+  const canvasOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7], [0.25, 0.7, 1]);
 
-  // depth gradient grows stronger as user descends
-  const gradientOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0.45, 0.85, 1]);
+  // depth gradient grows stronger as user descends, but stays subtle
+  const gradientOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.7, 1]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
