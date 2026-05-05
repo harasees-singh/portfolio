@@ -88,7 +88,7 @@ export function Hero() {
         <header className="zone__header">
           <div>
             <div className="zone__eyebrow">Sunlit Zone</div>
-            <h1 className="hero__title">Charting the depths of databases</h1>
+            <h1 className="hero__title">Charting the depths of databases and storage</h1>
           </div>
           <div className="zone__telemetry">
             <span>CURRENT_DEPTH: 30m</span>
@@ -158,7 +158,7 @@ interface DistrictCardProps {
   tags: string[];
 }
 
-function DistrictCard({ districtNumber, district, heading, body, tags }: DistrictCardProps) {
+export function DistrictCard({ districtNumber, district, heading, body, tags }: DistrictCardProps) {
   return (
     <motion.article className="atlas-card" variants={fadeUp}>
       <div className="atlas-card__head">
