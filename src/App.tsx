@@ -92,46 +92,79 @@ export default function App() {
           </div>
         </Zone>
 
-        {/* EXPLORATION — Abyssal Zone */}
+        {/* EXPLORATION — Abyssal Zone — Replication & Consistency (2,250m) */}
         <Zone
           id="exploration"
-          eyebrow="Mission Log V2"
-          title="Exploration metrics"
+          eyebrow="Abyssal Zone"
+          title="Replication, causality and the cost of agreement."
           depth="2,250m"
           temp="3°C"
         >
-          <Bento>
-            <Card variant="third" eyebrow="Throughput">
-              <div className="metric">
-                <span className="metric__value">128k</span>
-                <span className="metric__unit">requests · min</span>
-              </div>
-              <p className="card__body" style={{ marginTop: '1rem' }}>
-                Sustained read throughput across the primary archive cluster, holding at
-                cold-storage latencies under 14ms p99.
-              </p>
-            </Card>
-            <Card variant="third" eyebrow="Uptime">
-              <div className="metric">
-                <span className="metric__value">99.987%</span>
-                <span className="metric__unit">trailing 90 days</span>
-              </div>
-              <p className="card__body" style={{ marginTop: '1rem' }}>
-                Self-healing routing layer rebalances live shards as nodes drop without
-                impacting the descent.
-              </p>
-            </Card>
-            <Card variant="third" eyebrow="Pressure">
-              <div className="metric">
-                <span className="metric__value">225 atm</span>
-                <span className="metric__unit">deep-fleet load</span>
-              </div>
-              <p className="card__body" style={{ marginTop: '1rem' }}>
-                Backpressure shapes traffic across regions, holding tail latency steady
-                under bursty consumer demand.
-              </p>
-            </Card>
-          </Bento>
+          <p
+            className="hero__subtitle"
+            style={{ marginTop: '-1.5rem', marginBottom: '3rem' }}
+          >
+            Below the warehouses the terrain folds into replicas. The map stops being
+            about where data lives and starts being about who agrees on it — single
+            leader, multi-leader, leaderless, and the long swim through the Bay of
+            Causality between them.
+          </p>
+          <div className="hero__atlas">
+            <DistrictCard
+              districtNumber="11"
+              district="Single-Leader Replication"
+              heading="PostgreSQL · MySQL · SQL Server · Oracle · MongoDB"
+              body="The Logical and Physical Coasts. One node owns the writes, followers
+                    catch up — simple to reason about until the Pit of Failover opens
+                    and you have to decide what 'caught up' really means."
+              tags={['Primary/Replica', 'Sync vs async', 'Failover', 'Replication lag']}
+            />
+            <DistrictCard
+              districtNumber="12"
+              district="Multi-Leader Replication"
+              heading="CouchDB · Etherpad · Google Docs · Calendar Sync"
+              body="The Replication-Lag Highway and the Pinnacles of Conflict
+                    Resolution. Several nodes accept writes; reconciling them is half
+                    engineering and half product policy."
+              tags={['Multi-master', 'Conflict resolution', 'Last-write-wins', 'Custom merge']}
+            />
+            <DistrictCard
+              districtNumber="13"
+              district="Leaderless Replication"
+              heading="Cassandra · Riak · Voldemort"
+              body="Quorum Harbor on the Eventual Consistency Boulevard. Reads and
+                    writes hit any replica; quorums and read-repair stitch the system
+                    back together when nodes diverge."
+              tags={['Quorums (R/W/N)', 'Read repair', 'Hinted handoff', 'Anti-entropy']}
+            />
+            <DistrictCard
+              districtNumber="14"
+              district="Bay of Causality"
+              heading="Vector clocks · Lamport timestamps · Happens-before"
+              body="Tracking what could have caused what across nodes. The terrain
+                    where 'before' and 'after' stop being properties of the wall clock
+                    and start being properties of the system."
+              tags={['Vector clocks', 'Lamport', 'Causal order', 'Hybrid logical clocks']}
+            />
+            <DistrictCard
+              districtNumber="15"
+              district="Pinnacles of Conflict Resolution"
+              heading="CRDTs · Operational Transform · Application merges"
+              body="The high country where concurrent writes finally have to agree.
+                    Convergent data types for collaborative editing, presence, counters,
+                    and live cursors that survive partitions."
+              tags={['CRDTs', 'OT', 'G-Counters', 'OR-Sets']}
+            />
+            <DistrictCard
+              districtNumber="16"
+              district="Forest of Consistency Models"
+              heading="Linearizable · Sequential · Causal · Eventual"
+              body="The dense interior. Choosing the weakest model the product can
+                    tolerate, then defending that choice when someone asks why the UI
+                    'showed the old number for a second'."
+              tags={['Linearizability', 'Sequential', 'Causal', 'Eventual']}
+            />
+          </div>
         </Zone>
 
         {/* LOGS — Hadal Zone */}
