@@ -87,6 +87,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  /* Account for the fixed topnav so anchored scrolls (depth-rail clicks,
+     internal #links) land BELOW the bar instead of underneath it. */
+  scroll-padding-top: 96px;
 }
 
 body {
@@ -463,6 +466,7 @@ canvas {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
+  scroll-margin-top: 96px;
 }
 
 /* Outer wrapper handles the entrance animation. */
@@ -702,6 +706,7 @@ canvas {
   align-items: flex-start;
   padding: 10rem 0 8rem;
   overflow: hidden;
+  scroll-margin-top: 96px;
 }
 
 .hero__title {
@@ -874,6 +879,7 @@ canvas {
   position: relative;
   padding: 18rem 0 16rem;
   min-height: 100vh;
+  scroll-margin-top: 96px;
 }
 
 .zone + .zone {
