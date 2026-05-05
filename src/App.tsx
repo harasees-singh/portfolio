@@ -23,8 +23,8 @@ export default function App() {
   const deepZone = route ? zonesBySlug[route] : undefined;
   if (deepZone) {
     return (
-      <div className="app app--deep">
-        <BackgroundStack staticBackground />
+      <div className={`app app--deep app--zone-${deepZone.slug}`}>
+        <BackgroundStack staticBackground zoneSlug={deepZone.slug} />
         <TopNav />
         <ZoneDeepDive zone={deepZone} onBack={() => navigate('')} />
         <SiteFooter />

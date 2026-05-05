@@ -269,14 +269,10 @@ canvas {
 .bg-stack__gradient {
   position: absolute;
   inset: 0;
-  /* Very subtle, perfectly linear darkening that strengthens slowly with depth.
-     No mid-point inflection, no hard stops — nothing that would draw a line. */
-  background: linear-gradient(
-    180deg,
-    rgba(2, 8, 15, 0) 0%,
-    rgba(2, 8, 15, 0.6) 100%
-  );
-  will-change: opacity;
+  /* Background colour is driven by JS — BackgroundStack continuously
+     interpolates between zone colour stops based on scroll position so the
+     descent reads as one smooth gradient rather than discrete steps. */
+  will-change: opacity, background;
 }
 
 .bg-stack__vignette {
@@ -289,7 +285,14 @@ canvas {
 }
 
 /* Static deep-water backdrop for the deep-dive routes — no video, no canvas,
-   just a quiet teal gradient so dense text content stays readable. */
+   just a layered gradient. The fill colour escalates per zone so the
+   descent narrative carries through the background:
+     - Sunlit  : bright tropical shallows
+     - Twilight: dim teal mesopelagic
+     - Midnight: cold navy bathypelagic
+     - Abyssal : deep ink with only a hint of blue
+     - Hadal   : near-black, no light reaches here
+*/
 .bg-stack--static .bg-stack__static-fill {
   position: absolute;
   inset: 0;
@@ -297,6 +300,44 @@ canvas {
     radial-gradient(110% 70% at 50% 0%, rgba(16, 56, 74, 0.55) 0%, rgba(8, 28, 44, 0) 60%),
     linear-gradient(180deg, #0a2a3c 0%, #051828 55%, #03101a 100%);
 }
+
+.bg-stack--zone-sunlit .bg-stack__static-fill {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(125, 211, 252, 0.35) 0%, rgba(56, 189, 248, 0) 55%),
+    linear-gradient(180deg, #1a6394 0%, #114a73 40%, #0a2f4a 80%, #082236 100%);
+}
+
+.bg-stack--zone-twilight .bg-stack__static-fill {
+  background:
+    radial-gradient(110% 80% at 50% 0%, rgba(56, 189, 248, 0.18) 0%, rgba(8, 28, 44, 0) 55%),
+    linear-gradient(180deg, #0d3a52 0%, #0a2a3c 50%, #061a28 100%);
+}
+
+.bg-stack--zone-midnight .bg-stack__static-fill {
+  background:
+    radial-gradient(100% 70% at 50% 0%, rgba(56, 189, 248, 0.1) 0%, rgba(2, 8, 15, 0) 55%),
+    linear-gradient(180deg, #07212f 0%, #04111a 55%, #02080f 100%);
+}
+
+.bg-stack--zone-abyssal .bg-stack__static-fill {
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(56, 189, 248, 0.05) 0%, rgba(0, 0, 0, 0) 55%),
+    linear-gradient(180deg, #04111a 0%, #02080f 55%, #01040a 100%);
+}
+
+.bg-stack--zone-hadal .bg-stack__static-fill {
+  background:
+    radial-gradient(80% 55% at 50% 0%, rgba(56, 189, 248, 0.03) 0%, rgba(0, 0, 0, 0) 50%),
+    linear-gradient(180deg, #020610 0%, #010306 60%, #000000 100%);
+}
+
+/* Deep-dive page surface (.app--deep) takes its base colour from the matching
+   zone too, so it carries through to the footer / overscroll areas. */
+.app--zone-sunlit { background: #082236; }
+.app--zone-twilight { background: #061a28; }
+.app--zone-midnight { background: #02080f; }
+.app--zone-abyssal { background: #01040a; }
+.app--zone-hadal { background: #000000; }
 
 .bg-stack__snow {
   position: absolute;
@@ -631,78 +672,6 @@ canvas {
   display: flex;
   justify-content: center;
   pointer-events: none;
-}
-
-/* The persistent scroll cue */
-.scroll-hint {
-  position: absolute;
-  bottom: 4vh;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
-  cursor: pointer;
-  color: var(--primary-soft);
-  z-index: 6;
-  animation: scroll-hint-fade 3.6s ease-in-out infinite;
-}
-
-.scroll-hint__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: 999px;
-  background: rgba(2, 8, 15, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.32);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  font-family: var(--font-code);
-  font-size: 0.7rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--primary);
-  box-shadow: 0 0 28px rgba(56, 189, 248, 0.18);
-}
-
-.scroll-hint__chip .icon {
-  font-size: 1.05rem;
-  animation: descend 1.6s ease-in-out infinite;
-}
-
-.scroll-hint__rail {
-  position: relative;
-  width: 1px;
-  height: 56px;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0));
-  overflow: hidden;
-}
-
-.scroll-hint__bead {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
-  border-radius: 50%;
-  background: var(--primary);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
-  animation: bead-fall 2.4s cubic-bezier(0.6, 0, 0.4, 1) infinite;
-}
-
-@keyframes bead-fall {
-  0% { transform: translateY(-100%); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translateY(56px); opacity: 0; }
-}
-
-@keyframes scroll-hint-fade {
-  0%, 100% { opacity: 0.85; }
-  50% { opacity: 1; }
 }
 
 /* =============================================================
@@ -1273,7 +1242,9 @@ canvas {
  * ============================================================= */
 
 .app--deep {
-  background: linear-gradient(180deg, #04111a 0%, var(--surface-6) 70%);
+  /* Per-zone background lives on .app--zone-{slug} so the deep-dive page
+     and the static fill behind it both shift with depth. */
+  background: var(--surface-6);
 }
 
 .deep-dive {

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -42,13 +42,25 @@ export function SurfaceEntry() {
 /**
  * Animated cue at the bottom of the surface entry telling the user to scroll.
  * Uses a falling bead inside a thin gradient rail with a breathing chip label.
+ * Fades out the moment the user starts scrolling — it has done its job.
  */
 export function ScrollHint({ targetId }: { targetId: string }) {
+  const { scrollY } = useScroll();
+  // Vanish quickly once the user starts moving — fully gone after ~80px scroll.
+  const fade = useTransform(scrollY, [0, 40, 80], [1, 0.5, 0]);
+  const lift = useTransform(scrollY, [0, 80], [0, -12]);
+  // Remove from the hit-test once the chip is essentially invisible so the
+  // user's clicks fall through to whatever is underneath.
+  const pointer = useTransform(fade, (o) => (o < 0.05 ? 'none' : 'auto'));
+
   const onClick = () => {
     document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
   };
   return (
-    <div className="scroll-hint">
+    <motion.div
+      className="scroll-hint"
+      style={{ opacity: fade, y: lift, pointerEvents: pointer }}
+    >
       <motion.button
         type="button"
         className="scroll-hint__btn"
@@ -66,7 +78,7 @@ export function ScrollHint({ targetId }: { targetId: string }) {
           <span className="scroll-hint__bead" />
         </span>
       </motion.button>
-    </div>
+    </motion.div>
   );
 }
 
