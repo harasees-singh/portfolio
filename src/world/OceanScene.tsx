@@ -126,57 +126,6 @@ function Biolum({ count = 80 }: { count?: number }) {
 }
 
 /**
- * God rays — thin elongated planes near the top that fade with descent.
- */
-function GodRays() {
-  const group = useRef<THREE.Group>(null);
-  const { scrollYProgress } = useScroll();
-
-  useFrame((state) => {
-    const g = group.current;
-    if (!g) return;
-    const p = scrollYProgress.get();
-    // fade out by 30% scroll
-    const fade = Math.max(0, 1 - p * 3.4);
-    g.children.forEach((child, i) => {
-      const mesh = child as THREE.Mesh;
-      const mat = mesh.material as THREE.MeshBasicMaterial;
-      mat.opacity = fade * (0.08 + Math.sin(state.clock.elapsedTime * 0.3 + i) * 0.04);
-    });
-  });
-
-  const rays = useMemo(() => {
-    const arr: { x: number; rot: number; w: number; h: number }[] = [];
-    for (let i = 0; i < 7; i++) {
-      arr.push({
-        x: -18 + i * 6 + Math.random() * 2,
-        rot: -0.05 + Math.random() * 0.1,
-        w: 1.5 + Math.random() * 1.5,
-        h: 30,
-      });
-    }
-    return arr;
-  }, []);
-
-  return (
-    <group ref={group} position={[0, 8, -8]}>
-      {rays.map((r, i) => (
-        <mesh key={i} position={[r.x, 0, 0]} rotation={[0, 0, r.rot]}>
-          <planeGeometry args={[r.w, r.h]} />
-          <meshBasicMaterial
-            color="#8ed5ff"
-            transparent
-            opacity={0.08}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-/**
  * Camera that descends as the user scrolls — gives the world parallax depth.
  */
 function DescentCamera() {
@@ -204,22 +153,21 @@ function DescentCamera() {
 function DepthFog() {
   const { scrollYProgress } = useScroll();
   const fogRef = useRef<THREE.Fog | null>(null);
-  // shallow / mid / deep all stay in the surface-1..surface-4 family
-  const colorShallow = useMemo(() => new THREE.Color('#0e2a3a'), []);
+  // Match the video's bottom-half teal so the dissolve is invisible at scroll=0.
+  // Then ease into the deeper abyss colour as the user descends.
+  const colorShallow = useMemo(() => new THREE.Color('#10384a'), []);
   const colorDeep = useMemo(() => new THREE.Color('#061521'), []);
   const tmp = useMemo(() => new THREE.Color(), []);
 
   useFrame((state) => {
     const p = scrollYProgress.get();
     if (!state.scene.fog) {
-      state.scene.fog = new THREE.Fog('#0e2a3a', 8, 28);
+      state.scene.fog = new THREE.Fog('#10384a', 8, 28);
       fogRef.current = state.scene.fog as THREE.Fog;
     }
     const fog = state.scene.fog as THREE.Fog;
-    // pull the far plane in as we descend → tighter visibility, deeper feel
     fog.far = 28 - p * 12;
     fog.near = 5 - p * 2.5;
-    // gentle shift inside the same teal family — never goes pure black
     tmp.copy(colorShallow).lerp(colorDeep, p);
     fog.color.copy(tmp);
     state.scene.background = fog.color;
@@ -240,7 +188,6 @@ export function OceanScene() {
       <DescentCamera />
       <ambientLight intensity={0.35} color="#7dd3fc" />
       <directionalLight position={[2, 10, 4]} intensity={0.6} color="#cfe8ff" />
-      <GodRays />
       <MarineSnow />
       <Biolum />
     </Canvas>

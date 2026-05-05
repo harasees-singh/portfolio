@@ -204,56 +204,40 @@ canvas {
   position: absolute;
   inset: 0;
   width: 100%;
-  /* The source clip has visible reef floor in the bottom ~28%. We grow the
-     video element vertically and anchor it to the TOP so the floor falls off
-     the bottom of the surface wrapper, which itself feathers into the abyss. */
-  height: 138%;
+  /* Show the full frame — no vertical overflow now that we want every pixel
+     of the source visible. cover keeps it filling the viewport on any aspect. */
+  height: 100%;
   object-fit: cover;
-  object-position: 50% 0%;
+  object-position: 50% 50%;
   filter: saturate(0.78) contrast(1) hue-rotate(-12deg) brightness(0.92);
   will-change: opacity, filter, transform;
 }
 
 /* The surface wrapper is what physically translates UP with scroll.
-   Its bottom edge is feathered very generously into the abyss so the receding
-   water surface dissolves into the 3D scene rather than meeting it at a seam. */
+   The mask is a pure linear gradient so the dissolve happens at a constant
+   rate across the lower half of the video — no perceptible edge anywhere. */
 .bg-stack__surface {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.85) 58%,
-    rgba(0, 0, 0, 0.45) 76%,
-    rgba(0, 0, 0, 0) 92%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 38%,
-    rgba(0, 0, 0, 0.85) 58%,
-    rgba(0, 0, 0, 0.45) 76%,
-    rgba(0, 0, 0, 0) 92%
-  );
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
   will-change: transform, opacity;
 }
 
-/* A teal wash that sits ON TOP of the video and tints it toward the abyss
-   palette. This is what makes the surface and the 3D scene feel like the same
-   body of water rather than two different layers stitched together. */
+/* A teal wash that sits ON TOP of the video. Kept very subtle and even so it
+   doesn't carve a horizon line. The whole point is to let the video colour
+   meet the abyss colour at exactly the same value at every visible y. */
 .bg-stack__surface::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(7, 25, 38, 0.18) 0%,
-    rgba(10, 36, 56, 0.35) 50%,
-    rgba(11, 33, 47, 0.6) 100%
+    rgba(8, 28, 44, 0.0) 0%,
+    rgba(8, 28, 44, 0.18) 100%
   );
   mix-blend-mode: multiply;
   pointer-events: none;
@@ -262,22 +246,9 @@ canvas {
 /* Thin sky-blue caustic strip anchored to the surface bottom edge — subtle
    underwater horizon glow that travels up with the surface. */
 .bg-stack__caustic {
-  position: absolute;
-  left: -5%;
-  right: -5%;
-  bottom: 12%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(125, 211, 252, 0.0) 12%,
-    rgba(125, 211, 252, 0.32) 50%,
-    rgba(125, 211, 252, 0.0) 88%,
-    transparent 100%
-  );
-  filter: blur(1.5px);
-  box-shadow: 0 0 32px rgba(56, 189, 248, 0.22);
-  opacity: 0.7;
+  /* removed — the tiny horizontal line was reading as a horizon at certain
+     scroll positions. The smooth mask + matched colour now does the work. */
+  display: none;
 }
 
 .bg-stack__canvas {
@@ -290,13 +261,12 @@ canvas {
 .bg-stack__gradient {
   position: absolute;
   inset: 0;
+  /* Very subtle, perfectly linear darkening that strengthens slowly with depth.
+     No mid-point inflection, no hard stops — nothing that would draw a line. */
   background: linear-gradient(
     180deg,
-    rgba(7, 25, 38, 0) 0%,
-    rgba(10, 36, 56, 0.18) 38%,
-    rgba(8, 28, 44, 0.5) 64%,
-    rgba(6, 21, 34, 0.78) 82%,
-    rgba(4, 16, 26, 0.92) 100%
+    rgba(2, 8, 15, 0) 0%,
+    rgba(2, 8, 15, 0.6) 100%
   );
   will-change: opacity;
 }
@@ -356,6 +326,7 @@ canvas {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-right: 2.5rem;
 }
 
 .topnav__brand-mark {
@@ -476,6 +447,143 @@ canvas {
   .depth-rail {
     display: none;
   }
+}
+
+/* =============================================================
+ * Surface entry — top of page, before the user has descended
+ * ============================================================= */
+
+.surface-entry {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8vh var(--gap-xl) 0;
+  text-align: center;
+}
+
+.surface-entry__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 720px;
+  margin-bottom: auto;
+  margin-top: 12vh;
+}
+
+.surface-entry__eyebrow {
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(186, 230, 253, 0.7);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.surface-entry__wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  line-height: 1.2;
+  color: rgba(240, 249, 255, 0.92);
+  text-shadow: 0 2px 18px rgba(2, 8, 15, 0.55);
+  letter-spacing: -0.005em;
+}
+
+.surface-entry__sub {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(224, 242, 254, 0.72);
+  max-width: 52ch;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+.surface-entry__waterline {
+  position: absolute;
+  bottom: 18vh;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* The persistent scroll cue */
+.scroll-hint {
+  position: absolute;
+  bottom: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  color: var(--primary-soft);
+  z-index: 6;
+  animation: scroll-hint-fade 3.6s ease-in-out infinite;
+}
+
+.scroll-hint__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(2, 8, 15, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--primary);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.18);
+}
+
+.scroll-hint__chip .icon {
+  font-size: 1.05rem;
+  animation: descend 1.6s ease-in-out infinite;
+}
+
+.scroll-hint__rail {
+  position: relative;
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0));
+  overflow: hidden;
+}
+
+.scroll-hint__bead {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
+  animation: bead-fall 2.4s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+}
+
+@keyframes bead-fall {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(56px); opacity: 0; }
+}
+
+@keyframes scroll-hint-fade {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
 }
 
 /* =============================================================
@@ -709,26 +817,17 @@ canvas {
 
 .card {
   position: relative;
-  background: var(--glass-low);
-  border: 1px solid var(--glass-edge);
+  background: rgba(8, 28, 44, 0.55);
+  border: 1px solid rgba(125, 211, 252, 0.06);
   border-radius: var(--radius-xl);
   padding: 2rem;
-  backdrop-filter: blur(18px) saturate(1.15);
-  -webkit-backdrop-filter: blur(18px) saturate(1.15);
-  transition: border-color var(--dur-med) var(--ease-deep), transform var(--dur-med) var(--ease-deep), box-shadow var(--dur-med) var(--ease-deep);
+  transition: background var(--dur-med) var(--ease-deep), border-color var(--dur-med) var(--ease-deep), transform var(--dur-med) var(--ease-deep), box-shadow var(--dur-med) var(--ease-deep);
   overflow: hidden;
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(125, 211, 252, 0.06), transparent 45%);
-  pointer-events: none;
-}
-
 .card:hover {
-  border-color: var(--glass-edge-hover);
+  background: rgba(10, 36, 56, 0.7);
+  border-color: rgba(125, 211, 252, 0.22);
   transform: translateY(-2px);
   box-shadow: 0 18px 42px rgba(2, 8, 15, 0.55);
 }
@@ -748,7 +847,7 @@ canvas {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: var(--glass-high);
+  background: rgba(11, 39, 56, 0.7);
 }
 
 .card--half {

@@ -77,7 +77,7 @@ export function BackgroundStack() {
         <motion.video
           ref={videoRef}
           className="bg-stack__video"
-          src="/its_deep_sea.mp4"
+          src="/camera_lens.mp4"
           autoPlay
           muted
           loop

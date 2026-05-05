@@ -2,7 +2,7 @@ import './index.css';
 import { BackgroundStack } from './components/BackgroundStack';
 import { TopNav } from './components/TopNav';
 import { DepthRail } from './components/DepthRail';
-import { Hero, ScrollPrompt } from './components/Hero';
+import { Hero, ScrollPrompt, SurfaceEntry } from './components/Hero';
 import { Bento, Card, Zone } from './components/Zone';
 import { SiteFooter } from './components/SiteFooter';
 
@@ -14,6 +14,7 @@ export default function App() {
       <DepthRail />
 
       <main>
+        <SurfaceEntry />
         <Hero />
         <ScrollPrompt targetId="twilight" />
 
