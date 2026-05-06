@@ -1247,6 +1247,17 @@ canvas {
   flex-wrap: wrap;
 }
 
+/* The header's first child holds the eyebrow + title. Constrain its width
+   so a long title wraps onto a second line inside the left column instead
+   of pushing the telemetry block down to its own row. The telemetry has
+   a fixed text width, so leaving ~24rem here keeps everything balanced
+   even at the widest viewport. */
+.zone__header > div:first-child {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc(100% - 14rem);
+}
+
 .zone__eyebrow {
   font-family: var(--font-body);
   font-size: 0.7rem;

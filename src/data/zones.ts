@@ -40,7 +40,7 @@ export const zones: Zone[] = [
     id: 'sunlit-hero',
     slug: 'sunlit',
     label: 'Sunlit Zone',
-    title: 'Charting the depths of backend architecture.',
+    title: 'Charting the depths of databases',
     depth: '30m',
     temp: '22°C',
     teaser:
