@@ -1,4 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { zonesBySlug } from '../data/zones';
+import { ZoneOrbit, hashSeed } from './ZoneOrbit';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -90,10 +92,15 @@ export function ScrollHint({ targetId }: { targetId: string }) {
  * the full atlas.
  */
 export function Hero({ onExplore }: { onExplore: (slug: string) => void }) {
+  const sunlit = zonesBySlug['sunlit'];
   return (
     <section id="sunlit-hero" className="hero">
-      <div className="shell">
+      <div className="shell zone__stage">
+        {sunlit?.orbit && (
+          <ZoneOrbit items={sunlit.orbit} seed={hashSeed('sunlit')} />
+        )}
         <motion.div
+          className="zone__content"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
@@ -102,7 +109,7 @@ export function Hero({ onExplore }: { onExplore: (slug: string) => void }) {
           <motion.header className="zone__header" variants={fadeUp}>
             <div>
               <div className="zone__eyebrow">Sunlit Zone</div>
-              <h1 className="hero__title">Charting the depths of databases and storage.</h1>
+              <h1 className="hero__title">Charting the depths of databases</h1>
             </div>
             <div className="zone__telemetry">
               <span>CURRENT_DEPTH: 30m</span>

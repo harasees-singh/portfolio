@@ -26,6 +26,12 @@ export interface Zone {
   depth: string;
   temp: string;
   cta: string;           // animated link label
+  /**
+   * Short tech labels for the landing-page orbit animation. Keep these to
+   * 4–7 entries and prefer punchy 2–9 character names so the bubbles
+   * read at a glance while drifting around the title.
+   */
+  orbit?: readonly string[];
   districts: District[];
 }
 
@@ -42,6 +48,7 @@ export const zones: Zone[] = [
     subtitle:
       'The sunlit waters — where the map is bright and the trade routes are well-worn. These are the data territories I navigate every day, the districts I know by heart before the pressure starts to mount.',
     cta: 'Chart the Sunlit territories',
+    orbit: ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis'],
     districts: [
       {
         number: '01',
@@ -86,6 +93,7 @@ export const zones: Zone[] = [
     subtitle:
       'Light dims, focus shifts. The question stops being “which engine?” and becomes “how does it actually store the bytes, find them again, and ship them across the wire?”. Storage engines, access patterns and encodings — the choices that decide what an application is fast and slow at long before the first feature ships.',
     cta: 'Descend into the Twilight',
+    orbit: ['gRPC', 'Protobuf', 'Parquet'],
     districts: [
       {
         number: '05',
@@ -186,6 +194,7 @@ export const zones: Zone[] = [
     subtitle:
       'No sunlight reaches here. The dataset is too large to fit on one machine and too important to live on just one. Two interlocking strategies keep it coherent — replicate the data so any node can fail, partition it so no node has to hold all of it.',
     cta: 'Map the Midnight currents',
+    orbit: ['Cassandra', 'MongoDB', 'ZooKeeper', 'etcd'],
     districts: [
       {
         number: '17',
@@ -258,6 +267,7 @@ export const zones: Zone[] = [
     subtitle:
       'Below the warehouses the terrain folds inward. Replicas have to agree, transactions have to span machines, and the system needs a single answer about “what really happened, and in what order”. Mount Consensus rises out of this trench — every uniqueness constraint and leader election in the layers above eventually ends up here.',
     cta: 'Reach Mount Consensus',
+    orbit: ['etcd', 'ZooKeeper', 'Kubernetes'],
     districts: [
       {
         number: '25',
@@ -323,6 +333,7 @@ export const zones: Zone[] = [
     subtitle:
       'The deepest pressure. Most production data isn’t the source of truth — it’s a derivative. Search indexes, recommendation models, materialised views, training datasets. The Hadal trench is where raw events feed the Forest of Logs and the Great Event Stream, then get reshaped into the answers the surface actually queries.',
     cta: 'Brave the Hadal trench',
+    orbit: ['Kafka', 'Spark', 'Flink', 'Airflow'],
     districts: [
       {
         number: '32',

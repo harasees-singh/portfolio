@@ -1088,6 +1088,125 @@ canvas {
   }
 }
 
+/* Stage that hosts the zone copy plus its orbiting tech bubbles. The orbit
+   layer is absolutely positioned and overflows the shell on either side, so
+   we let it bleed out without breaking the page width. */
+.zone__stage {
+  position: relative;
+}
+
+.zone__content {
+  position: relative;
+  /* Sits above any bubble whose depth (z) is currently negative so the text
+     always stays legible. Front-half bubbles set their own z-index higher
+     than this in `.zone-orbit__bubble[data-front="true"]`. */
+  z-index: 2;
+}
+
+/* --- Orbiting tech bubbles ------------------------------------------ */
+
+.zone-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.zone-orbit__bubble {
+  position: absolute;
+  /* Anchor the orbit centre on the visible block of zone copy. */
+  top: 38%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  /* Centre the bubble on (left, top); the JS animation translates from
+     translate(-50%, -50%) baked into its transform string. */
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  /* Underwater bubble look:
+       - very transparent core so the scene shows through,
+       - a brighter rim from inset shadow (light wrapping the surface),
+       - a small bright highlight at the top-left (key light from above),
+       - a soft outer glow.
+     Combined this reads as a real round bubble rather than a flat disc. */
+  background:
+    radial-gradient(
+      circle at 30% 28%,
+      rgba(240, 249, 255, 0.55) 0%,
+      rgba(186, 230, 253, 0.18) 18%,
+      rgba(56, 189, 248, 0.04) 40%,
+      rgba(2, 8, 15, 0) 70%
+    );
+  border: 1px solid rgba(186, 230, 253, 0.38);
+  box-shadow:
+    0 0 22px rgba(56, 189, 248, 0.22),
+    inset 0 0 18px rgba(186, 230, 253, 0.18),
+    inset -6px -8px 18px rgba(2, 8, 15, 0.35);
+  /* The transform is rewritten on every animation frame; keep the GPU happy. */
+  will-change: transform, opacity;
+  transition: filter 240ms var(--ease-deep);
+  user-select: none;
+}
+
+/* Tiny highlight gleam — a second elliptical specular at top-left. */
+.zone-orbit__bubble::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 14%;
+  width: 26%;
+  height: 18%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  pointer-events: none;
+}
+
+/* Icon — img element loaded from cdn.simpleicons.org. The brand-coloured
+   SVG is requested with a cyan tint via the URL's `/<hex>` suffix, so we
+   only need to size it here; no mask gymnastics. If the upstream slug
+   404s, the JS `onError` removes the whole bubble. */
+.zone-orbit__icon {
+  width: 56%;
+  height: 56%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
+  pointer-events: none;
+  user-select: none;
+}
+
+.zone-orbit__bubble[data-front='true'] {
+  z-index: 4;
+}
+
+.zone-orbit__bubble[data-front='false'] {
+  z-index: 0;
+  filter: blur(0.6px) brightness(0.78) saturate(0.85);
+}
+
+/* On narrow screens the orbit cramps the copy. Hide it past the breakpoint
+   where the text already takes the full width. */
+@media (max-width: 720px) {
+  .zone-orbit {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zone-orbit__bubble {
+    /* Without the JS frame loop the bubbles would all collapse on top of
+       each other; just hide the layer entirely. */
+    display: none;
+  }
+}
+
 .zone__header {
   display: flex;
   align-items: flex-end;
