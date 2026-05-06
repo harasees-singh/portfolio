@@ -1118,8 +1118,8 @@ canvas {
   /* Anchor the orbit centre on the visible block of zone copy. */
   top: 38%;
   left: 50%;
-  width: 140px;
-  height: 140px;
+  width: 190px;
+  height: 190px;
   /* Centre the bubble on (left, top); the JS animation translates from
      translate(-50%, -50%) baked into its transform string. */
   transform: translate(-50%, -50%);
@@ -1180,6 +1180,37 @@ canvas {
   filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
   pointer-events: none;
   user-select: none;
+}
+
+/* Local-icon variant: a single-colour SVG from /public/icons recoloured
+   via CSS mask, so we don't have to ship one tinted copy per palette. */
+.zone-orbit__icon--local {
+  display: inline-block;
+  background-color: var(--primary-bright);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+}
+
+/* Text bubble — used for techs that have no good brand icon. Same cyan
+   tint and glow as the icon variant so it reads as a peer of the
+   icon-bubbles, not an outlier. */
+.zone-orbit__label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--primary-bright);
+  text-shadow:
+    0 0 6px rgba(56, 189, 248, 0.55),
+    0 0 12px rgba(186, 230, 253, 0.35);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
 }
 
 .zone-orbit__bubble[data-front='true'] {

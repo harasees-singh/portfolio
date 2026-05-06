@@ -93,7 +93,7 @@ export const zones: Zone[] = [
     subtitle:
       'Light dims, focus shifts. The question stops being “which engine?” and becomes “how does it actually store the bytes, find them again, and ship them across the wire?”. Storage engines, access patterns and encodings — the choices that decide what an application is fast and slow at long before the first feature ships.',
     cta: 'Descend into the Twilight',
-    orbit: ['gRPC', 'Protobuf', 'Parquet'],
+    orbit: ['Thrift', 'Parquet', 'gRPC'],
     districts: [
       {
         number: '05',
@@ -194,7 +194,7 @@ export const zones: Zone[] = [
     subtitle:
       'No sunlight reaches here. The dataset is too large to fit on one machine and too important to live on just one. Two interlocking strategies keep it coherent — replicate the data so any node can fail, partition it so no node has to hold all of it.',
     cta: 'Map the Midnight currents',
-    orbit: ['Cassandra', 'MongoDB', 'ZooKeeper', 'etcd'],
+    orbit: ['Cassandra', 'MongoDB', 'Elasticsearch', 'etcd'],
     districts: [
       {
         number: '17',

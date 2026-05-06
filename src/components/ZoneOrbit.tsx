@@ -20,6 +20,14 @@ export interface ZoneOrbitProps {
  * Icons are pulled from `cdn.simpleicons.org`, which returns a coloured
  * SVG (we tint to the page's primary cyan via the `/<hex>` suffix) so the
  * bundle stays small and every glyph picks up the descent palette.
+ *
+ * Note: simple-icons doesn't ship marks for some core infra projects
+ * (Protobuf, gRPC, Thrift, Avro, ZooKeeper). Two strategies:
+ *   - Apache-family projects with no dedicated mark map to the generic
+ *     `apache` feather. Use sparingly so the orbit doesn't read as
+ *     "three feathers and a database".
+ *   - Anything else is simply omitted, and the corresponding bubble
+ *     never renders.
  */
 const ICON_SLUGS: Record<string, string> = {
   PostgreSQL: 'postgresql',
@@ -27,7 +35,7 @@ const ICON_SLUGS: Record<string, string> = {
   MongoDB: 'mongodb',
   Redis: 'redis',
   Cassandra: 'apachecassandra',
-  Protobuf: 'protobuf',
+  Thrift: 'apache',
   Parquet: 'apacheparquet',
   etcd: 'etcd',
   Kubernetes: 'kubernetes',
@@ -35,6 +43,27 @@ const ICON_SLUGS: Record<string, string> = {
   Spark: 'apachespark',
   Flink: 'apacheflink',
   Airflow: 'apacheairflow',
+  Elasticsearch: 'elasticsearch',
+};
+
+/**
+ * Display name → short text rendered inside a bubble for techs that have
+ * no good brand icon. The string is shown as-is in the same cyan tint as
+ * an icon would be, sized to the bubble. Keep the label short (≤5 chars)
+ * so it doesn't crowd the bubble.
+ */
+const TEXT_BUBBLES: Record<string, string> = {
+  gRPC: 'gRPC',
+};
+
+/**
+ * Display name → path under `/public/icons/` to a single-colour SVG that
+ * lives in this repo (used for techs that have no simple-icons mark but
+ * still deserve a glyph rather than a text label). The SVG must use
+ * `currentColor` for its strokes/fills so the CSS tint applies.
+ */
+const LOCAL_ICONS: Record<string, string> = {
+  ZooKeeper: '/icons/zookeeper.svg',
 };
 
 /** Tint colour applied to every icon — keeps everything on-palette. */
@@ -64,10 +93,24 @@ const iconUrl = (slug: string) =>
 export function ZoneOrbit({ items, seed }: ZoneOrbitProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  // Drop anything we don't have an icon mapping for.
-  const visible = items
-    .map((name) => ({ name, slug: ICON_SLUGS[name] }))
-    .filter((b): b is { name: string; slug: string } => Boolean(b.slug));
+  // Resolve each requested item to either an icon-bubble or a text-bubble.
+  // Anything that has neither mapping is dropped so the orbit never shows
+  // a blank placeholder.
+  type RenderItem =
+    | { kind: 'icon'; name: string; slug: string }
+    | { kind: 'local'; name: string; src: string }
+    | { kind: 'text'; name: string; label: string };
+  const visible: RenderItem[] = items
+    .map((name): RenderItem | null => {
+      const slug = ICON_SLUGS[name];
+      if (slug) return { kind: 'icon', name, slug };
+      const local = LOCAL_ICONS[name];
+      if (local) return { kind: 'local', name, src: local };
+      const label = TEXT_BUBBLES[name];
+      if (label) return { kind: 'text', name, label };
+      return null;
+    })
+    .filter((b): b is RenderItem => b !== null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -291,25 +334,37 @@ export function ZoneOrbit({ items, seed }: ZoneOrbitProps) {
     <div className="zone-orbit" ref={wrapRef} aria-hidden>
       {visible.map((b, i) => (
         <span
-          key={`${b.slug}-${i}`}
+          key={`${b.name}-${i}`}
           className="zone-orbit__bubble"
           data-front="false"
           title={b.name}
         >
-          <img
-            className="zone-orbit__icon"
-            src={iconUrl(b.slug)}
-            alt=""
-            loading="lazy"
-            // If the slug 404s (icon not in the registry), remove the
-            // whole bubble so the orbit never shows an empty placeholder.
-            onError={(e) => {
-              const bubble = (e.currentTarget as HTMLElement).closest(
-                '.zone-orbit__bubble',
-              );
-              bubble?.remove();
-            }}
-          />
+          {b.kind === 'icon' ? (
+            <img
+              className="zone-orbit__icon"
+              src={iconUrl(b.slug)}
+              alt=""
+              loading="lazy"
+              // If the slug 404s (icon not in the registry), remove the
+              // whole bubble so the orbit never shows an empty placeholder.
+              onError={(e) => {
+                const bubble = (e.currentTarget as HTMLElement).closest(
+                  '.zone-orbit__bubble',
+                );
+                bubble?.remove();
+              }}
+            />
+          ) : b.kind === 'local' ? (
+            <span
+              className="zone-orbit__icon zone-orbit__icon--local"
+              style={{
+                WebkitMaskImage: `url(${b.src})`,
+                maskImage: `url(${b.src})`,
+              }}
+            />
+          ) : (
+            <span className="zone-orbit__label">{b.label}</span>
+          )}
         </span>
       ))}
     </div>
