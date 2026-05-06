@@ -1,9 +1,10 @@
 import './index.css';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BackgroundStack } from './components/BackgroundStack';
 import { TopNav } from './components/TopNav';
 import { DepthRail } from './components/DepthRail';
 import { Hero, SurfaceEntry } from './components/Hero';
+import { LoadingScreen } from './components/LoadingScreen';
 import { ZoneTeaser } from './components/ZoneTeaser';
 import { ZoneDeepDive } from './components/ZoneDeepDive';
 import { Bento, Card, Zone } from './components/Zone';
@@ -11,8 +12,34 @@ import { SiteFooter } from './components/SiteFooter';
 import { useHashRoute } from './useHashRoute';
 import { zones, zonesBySlug } from './data/zones';
 
+/** Minimum time the loader stays on screen so it never flashes mid-animation. */
+const LOADER_MIN_MS = 900;
+
 export default function App() {
   const [route, navigate] = useHashRoute();
+  const [sceneReady, setSceneReady] = useState(false);
+  const [loaderVisible, setLoaderVisible] = useState(true);
+  const mountedAt = useRef<number>(typeof performance !== 'undefined' ? performance.now() : Date.now());
+
+  // Hide the loader once the background scene is ready, but never sooner
+  // than LOADER_MIN_MS so the entrance animation always has a moment to read.
+  useEffect(() => {
+    if (!sceneReady) return;
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const remaining = Math.max(0, LOADER_MIN_MS - (now - mountedAt.current));
+    const id = window.setTimeout(() => setLoaderVisible(false), remaining);
+    return () => window.clearTimeout(id);
+  }, [sceneReady]);
+
+  // Lock body scroll while the loader covers the viewport so the user
+  // doesn’t accidentally scroll the descent before it can begin.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = loaderVisible ? 'hidden' : prev || '';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [loaderVisible]);
 
   // Sunlit lives inline on the landing page (it owns the H1), so the deeper
   // zones below it are rendered as minimal teasers that link to deep-dive
@@ -20,21 +47,27 @@ export default function App() {
   const teaserZones = useMemo(() => zones.filter((z) => z.slug !== 'sunlit'), []);
 
   // Deep-dive route — render only the focused zone, no descent surrounding it.
+  // Deep-dive route — render only the focused zone, no descent surrounding it.
   const deepZone = route ? zonesBySlug[route] : undefined;
   if (deepZone) {
+    // The deep-dive page has none of the landing zone anchors in the DOM, so
+    // the topnav telemetry would otherwise read 0. Pass the active zone's
+    // depth directly so the readout stays meaningful.
+    const deepDepth = parseDepthMetres(deepZone.depth);
     return (
       <div className={`app app--deep app--zone-${deepZone.slug}`}>
-        <BackgroundStack staticBackground zoneSlug={deepZone.slug} />
-        <TopNav />
+        <BackgroundStack staticBackground zoneSlug={deepZone.slug} onReady={() => setSceneReady(true)} />
+        <TopNav currentDepth={deepDepth} />
         <ZoneDeepDive zone={deepZone} onBack={() => navigate('')} />
         <SiteFooter />
+        <LoadingScreen visible={loaderVisible} />
       </div>
     );
   }
 
   return (
     <div className="app">
-      <BackgroundStack />
+      <BackgroundStack onReady={() => setSceneReady(true)} />
       <TopNav />
       <DepthRail />
 
@@ -90,6 +123,13 @@ export default function App() {
       </main>
 
       <SiteFooter />
+      <LoadingScreen visible={loaderVisible} />
     </div>
   );
+}
+
+/** Parses zone depth strings like "2,250m" into a plain integer (metres). */
+function parseDepthMetres(depth: string): number {
+  const digits = depth.replace(/[^0-9]/g, '');
+  return digits.length ? parseInt(digits, 10) : 0;
 }
