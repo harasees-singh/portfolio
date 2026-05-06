@@ -1,0 +1,50 @@
+name: Auto-bump version
+
+# Runs on every push to main. Bumps the patch version in package.json so the
+# footer's "Build" label always reflects the deployed build. The bump commit
+# is tagged with `[skip ci]` so it never re-triggers this workflow.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    # Skip if this push *is* the bump commit, otherwise we'd loop forever.
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT or the default token; default token is fine because we
+          # set `permissions.contents: write` above. `fetch-depth: 0` so we
+          # have history for the push back.
+          fetch-depth: 0
+          # Ensure subsequent push uses the workflow token.
+          persist-credentials: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump patch version
+        id: bump
+        run: |
+          # --no-git-tag-version: don't create a tag, we just want the file change.
+          new_version=$(npm version patch --no-git-tag-version)
+          echo "new_version=${new_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push bump
+        run: |
+          git add package.json package-lock.json 2>/dev/null || git add package.json
+          git commit -m "chore(release): ${{ steps.bump.outputs.new_version }} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}

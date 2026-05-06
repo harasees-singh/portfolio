@@ -1,18 +1,47 @@
+/**
+ * Minimal site footer — a single thin telemetry strip beneath the descent.
+ *
+ * `__APP_VERSION__` is a compile-time constant defined by Vite (see
+ * `vite.config.ts`). It is sourced from `package.json` and auto-bumped on
+ * every push to `main` by `.github/workflows/version-bump.yml`, so the
+ * displayed build always matches what is actually deployed.
+ */
+const buildStack = ['React', 'TypeScript', 'Three.js', 'Framer', 'Vite'];
+const version = `v${__APP_VERSION__}`;
+
 export function SiteFooter() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="foot" id="terminal">
-      <div className="foot__brand">
-        <span className="foot__brand-name">DEEP_SEA_ARCHIVE</span>
-        <span className="foot__brand-meta">©2026 SEABED_TERMINAL_v1.0.4</span>
-      </div>
-      <div className="foot__links">
-        <a className="foot__link" href="#surface">Encrypted_Link</a>
-        <a className="foot__link" href="#exploration">Core_Systems</a>
-        <a className="foot__link" href="#contact">Signal_Out</a>
-      </div>
-      <div className="foot__status">
-        <span className="foot__pulse" aria-hidden />
-        <span className="foot__status-label">System_Online</span>
+      {/* Soft gradient blend so the deep ocean above dissolves into the
+          footer with no visible seam. */}
+      <div className="foot__blend" aria-hidden />
+
+      <div className="foot__shell">
+        {/* --- Telemetry strip --------------------------------------- */}
+        <div className="foot__telemetry" role="contentinfo">
+          <div className="foot__telemetry-group">
+            <span className="foot__telemetry-key">Build</span>
+            <span className="foot__telemetry-val">{version}</span>
+          </div>
+          <span className="foot__telemetry-sep" aria-hidden>·</span>
+          <div className="foot__telemetry-group">
+            <span className="foot__telemetry-key">Stack</span>
+            <span className="foot__telemetry-val foot__telemetry-stack">
+              {buildStack.join(' · ')}
+            </span>
+          </div>
+          <span className="foot__telemetry-sep" aria-hidden>·</span>
+          <div className="foot__telemetry-group">
+            <span className="foot__telemetry-key">Pressure</span>
+            <span className="foot__telemetry-val">1100 atm</span>
+          </div>
+          <span className="foot__telemetry-spacer" aria-hidden />
+          <div className="foot__telemetry-group foot__telemetry-group--copyright">
+            <span className="foot__telemetry-val">© {year} Harasees Singh</span>
+          </div>
+        </div>
       </div>
     </footer>
   );

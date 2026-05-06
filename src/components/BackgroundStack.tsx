@@ -34,10 +34,17 @@ const zoneStops: ZoneStop[] = [
 export function BackgroundStack({
   staticBackground = false,
   zoneSlug,
+  onReady,
 }: {
   staticBackground?: boolean;
   /** Optional slug used by the static backdrop to tint each deep-dive page. */
   zoneSlug?: string;
+  /**
+   * Fired once the background scene is visually ready. On the landing page
+   * this means the video has buffered enough to play; on static deep-dive
+   * routes it fires immediately. Used by the descent loader to dismiss.
+   */
+  onReady?: () => void;
 } = {}) {
   // Static mode (deep-dive routes): render a quiet abyss-only backdrop with
   // no video, no scroll bindings, and no R3F canvas. The descent narrative
@@ -46,21 +53,43 @@ export function BackgroundStack({
   // background: bright sunlit shallows down to near-black hadal abyss.
   if (staticBackground) {
     return (
-      <div
-        className={`bg-stack bg-stack--static${zoneSlug ? ` bg-stack--zone-${zoneSlug}` : ''}`}
-        aria-hidden="true"
-      >
-        <div className="bg-stack__static-fill" />
-        <div className="bg-stack__vignette" />
-        <div className="bg-stack__snow" />
-      </div>
+      <StaticBackground zoneSlug={zoneSlug} onReady={onReady} />
     );
   }
 
-  return <BackgroundStackInteractive />;
+  return <BackgroundStackInteractive onReady={onReady} />;
 }
 
-function BackgroundStackInteractive() {
+/**
+ * Static deep-water backdrop used on deep-dive routes. There is no video to
+ * wait for, so the ready signal fires on the next frame.
+ */
+function StaticBackground({
+  zoneSlug,
+  onReady,
+}: {
+  zoneSlug?: string;
+  onReady?: () => void;
+}) {
+  useEffect(() => {
+    if (!onReady) return;
+    const id = window.requestAnimationFrame(() => onReady());
+    return () => window.cancelAnimationFrame(id);
+  }, [onReady]);
+
+  return (
+    <div
+      className={`bg-stack bg-stack--static${zoneSlug ? ` bg-stack--zone-${zoneSlug}` : ''}`}
+      aria-hidden="true"
+    >
+      <div className="bg-stack__static-fill" />
+      <div className="bg-stack__vignette" />
+      <div className="bg-stack__snow" />
+    </div>
+  );
+}
+
+function BackgroundStackInteractive({ onReady }: { onReady?: () => void }) {
   const { scrollY, scrollYProgress } = useScroll();
 
   // Continuously interpolate the page-background gradient between adjacent
@@ -154,6 +183,36 @@ function BackgroundStackInteractive() {
   const gradientOpacity = useTransform(scrollYProgress, [0, 0.18, 0.4], [0.4, 0.92, 1]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const readyFiredRef = useRef(false);
+
+  // Notify the loader as soon as the video has buffered enough to play.
+  // Falls back to a hard timer so a slow connection (or a browser that
+  // never fires the canplay event in time) can still get past the loader.
+  useEffect(() => {
+    if (!onReady) return;
+    const fire = () => {
+      if (readyFiredRef.current) return;
+      readyFiredRef.current = true;
+      onReady();
+    };
+    const v = videoRef.current;
+    if (v && v.readyState >= 3) {
+      fire();
+      return;
+    }
+    const onCanPlay = () => fire();
+    v?.addEventListener('canplaythrough', onCanPlay);
+    v?.addEventListener('canplay', onCanPlay);
+    v?.addEventListener('loadeddata', onCanPlay);
+    // Safety net — never trap the user behind the loader.
+    const timer = window.setTimeout(fire, 4500);
+    return () => {
+      v?.removeEventListener('canplaythrough', onCanPlay);
+      v?.removeEventListener('canplay', onCanPlay);
+      v?.removeEventListener('loadeddata', onCanPlay);
+      window.clearTimeout(timer);
+    };
+  }, [onReady]);
 
   // Pause the video once it has fully scrolled past — saves battery / GPU.
   useEffect(() => {
