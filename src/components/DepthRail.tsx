@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * Zones follow real oceanic depth bands (Epipelagic → Hadal). Icons are
+ * Material Symbols chosen to read literally for each layer of light & pressure.
+ */
 const zones = [
-  { id: 'surface', icon: 'light_mode', label: 'Surface' },
+  { id: 'surface', icon: 'sailing', label: 'Surface' },
   { id: 'sunlit-hero', icon: 'wb_sunny', label: 'Sunlit' },
-  { id: 'twilight', icon: 'water_drop', label: 'Twilight' },
-  { id: 'exploration', icon: 'waves', label: 'Abyssal' },
-  { id: 'logs', icon: 'visibility_off', label: 'Hadal' },
-  { id: 'contact', icon: 'terminal', label: 'Terminal' },
+  { id: 'twilight', icon: 'account_tree', label: 'Twilight' },
+  { id: 'midnight', icon: 'dark_mode', label: 'Midnight' },
+  { id: 'exploration', icon: 'phishing', label: 'Abyssal' },
+  { id: 'logs', icon: 'skull', label: 'Hadal' },
+  { id: 'contact', icon: 'send', label: 'Terminal' },
 ] as const;
 
 /**
@@ -39,7 +44,23 @@ export function DepthRail() {
   }, []);
 
   const handleClick = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = document.getElementById(id);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const navOffset = 96; // fixed top nav clearance
+    let targetY: number;
+    if (rect.height <= window.innerHeight - navOffset) {
+      // Section fits — centre it vertically in the viewport.
+      targetY = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+    } else {
+      // Section is taller than the viewport — pin its top below the nav so
+      // the eyebrow + heading are always visible after the jump.
+      targetY = window.scrollY + rect.top - navOffset;
+    }
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: 'smooth',
+    });
   };
 
   return (

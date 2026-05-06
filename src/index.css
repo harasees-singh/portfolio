@@ -87,6 +87,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  /* Account for the fixed topnav so anchored scrolls (depth-rail clicks,
+     internal #links) land BELOW the bar instead of underneath it. */
+  scroll-padding-top: 96px;
 }
 
 body {
@@ -266,14 +269,10 @@ canvas {
 .bg-stack__gradient {
   position: absolute;
   inset: 0;
-  /* Very subtle, perfectly linear darkening that strengthens slowly with depth.
-     No mid-point inflection, no hard stops — nothing that would draw a line. */
-  background: linear-gradient(
-    180deg,
-    rgba(2, 8, 15, 0) 0%,
-    rgba(2, 8, 15, 0.6) 100%
-  );
-  will-change: opacity;
+  /* Background colour is driven by JS — BackgroundStack continuously
+     interpolates between zone colour stops based on scroll position so the
+     descent reads as one smooth gradient rather than discrete steps. */
+  will-change: opacity, background;
 }
 
 .bg-stack__vignette {
@@ -284,6 +283,61 @@ canvas {
     radial-gradient(40% 30% at 50% 100%, rgba(56, 189, 248, 0.06), transparent 70%);
   mix-blend-mode: multiply;
 }
+
+/* Static deep-water backdrop for the deep-dive routes — no video, no canvas,
+   just a layered gradient. The fill colour escalates per zone so the
+   descent narrative carries through the background:
+     - Sunlit  : bright tropical shallows
+     - Twilight: dim teal mesopelagic
+     - Midnight: cold navy bathypelagic
+     - Abyssal : deep ink with only a hint of blue
+     - Hadal   : near-black, no light reaches here
+*/
+.bg-stack--static .bg-stack__static-fill {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(110% 70% at 50% 0%, rgba(16, 56, 74, 0.55) 0%, rgba(8, 28, 44, 0) 60%),
+    linear-gradient(180deg, #0a2a3c 0%, #051828 55%, #03101a 100%);
+}
+
+.bg-stack--zone-sunlit .bg-stack__static-fill {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(125, 211, 252, 0.35) 0%, rgba(56, 189, 248, 0) 55%),
+    linear-gradient(180deg, #1a6394 0%, #114a73 40%, #0a2f4a 80%, #082236 100%);
+}
+
+.bg-stack--zone-twilight .bg-stack__static-fill {
+  background:
+    radial-gradient(110% 80% at 50% 0%, rgba(56, 189, 248, 0.18) 0%, rgba(8, 28, 44, 0) 55%),
+    linear-gradient(180deg, #0d3a52 0%, #0a2a3c 50%, #061a28 100%);
+}
+
+.bg-stack--zone-midnight .bg-stack__static-fill {
+  background:
+    radial-gradient(100% 70% at 50% 0%, rgba(56, 189, 248, 0.1) 0%, rgba(2, 8, 15, 0) 55%),
+    linear-gradient(180deg, #07212f 0%, #04111a 55%, #02080f 100%);
+}
+
+.bg-stack--zone-abyssal .bg-stack__static-fill {
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(56, 189, 248, 0.05) 0%, rgba(0, 0, 0, 0) 55%),
+    linear-gradient(180deg, #04111a 0%, #02080f 55%, #01040a 100%);
+}
+
+.bg-stack--zone-hadal .bg-stack__static-fill {
+  background:
+    radial-gradient(80% 55% at 50% 0%, rgba(56, 189, 248, 0.03) 0%, rgba(0, 0, 0, 0) 50%),
+    linear-gradient(180deg, #020610 0%, #010306 60%, #000000 100%);
+}
+
+/* Deep-dive page surface (.app--deep) takes its base colour from the matching
+   zone too, so it carries through to the footer / overscroll areas. */
+.app--zone-sunlit { background: #082236; }
+.app--zone-twilight { background: #061a28; }
+.app--zone-midnight { background: #02080f; }
+.app--zone-abyssal { background: #01040a; }
+.app--zone-hadal { background: #000000; }
 
 .bg-stack__snow {
   position: absolute;
@@ -463,6 +517,7 @@ canvas {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
+  scroll-margin-top: 96px;
 }
 
 /* Outer wrapper handles the entrance animation. */
@@ -619,78 +674,6 @@ canvas {
   pointer-events: none;
 }
 
-/* The persistent scroll cue */
-.scroll-hint {
-  position: absolute;
-  bottom: 4vh;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
-  cursor: pointer;
-  color: var(--primary-soft);
-  z-index: 6;
-  animation: scroll-hint-fade 3.6s ease-in-out infinite;
-}
-
-.scroll-hint__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: 999px;
-  background: rgba(2, 8, 15, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.32);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  font-family: var(--font-code);
-  font-size: 0.7rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--primary);
-  box-shadow: 0 0 28px rgba(56, 189, 248, 0.18);
-}
-
-.scroll-hint__chip .icon {
-  font-size: 1.05rem;
-  animation: descend 1.6s ease-in-out infinite;
-}
-
-.scroll-hint__rail {
-  position: relative;
-  width: 1px;
-  height: 56px;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0));
-  overflow: hidden;
-}
-
-.scroll-hint__bead {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
-  border-radius: 50%;
-  background: var(--primary);
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.85);
-  animation: bead-fall 2.4s cubic-bezier(0.6, 0, 0.4, 1) infinite;
-}
-
-@keyframes bead-fall {
-  0% { transform: translateY(-100%); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translateY(56px); opacity: 0; }
-}
-
-@keyframes scroll-hint-fade {
-  0%, 100% { opacity: 0.85; }
-  50% { opacity: 1; }
-}
-
 /* =============================================================
  * Hero (Sunlit zone) — follows the same eyebrow/title/telemetry header
  * pattern as the deeper Zone components, plus a body subtitle below.
@@ -698,13 +681,14 @@ canvas {
 
 .hero {
   position: relative;
-  /* Give the Sunlit hero a full extra screen of breathing room so the rail
-     stays on Sunlit while the user reads, rather than jumping to Twilight. */
-  min-height: 140vh;
+  /* Sit a full viewport below the surface entry so the user has to scroll
+     past the descent prompt before reaching the Sunlit zone. */
+  min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 8rem 0;
+  padding: 10rem 0 8rem;
   overflow: hidden;
+  scroll-margin-top: 96px;
 }
 
 .hero__title {
@@ -725,6 +709,105 @@ canvas {
   color: var(--on-surface-variant);
   max-width: 60ch;
   margin-top: 1.5rem;
+}
+
+/* =============================================================
+ * Atlas grid — Sunlit zone "districts of expertise"
+ * Styled like a cartographer's map legend rather than another bento.
+ * ============================================================= */
+
+.hero__atlas {
+  margin-top: 4rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 980px) {
+  .hero__atlas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .hero__atlas { grid-template-columns: 1fr; }
+}
+
+.atlas-card {
+  position: relative;
+  padding: 1.5rem 1.4rem 1.4rem;
+  border-top: 1px solid rgba(125, 211, 252, 0.18);
+  background: linear-gradient(
+    180deg,
+    rgba(8, 28, 44, 0.0) 0%,
+    rgba(8, 28, 44, 0.18) 100%
+  );
+  transition: border-color var(--dur-med) var(--ease-deep), background var(--dur-med) var(--ease-deep);
+}
+
+.atlas-card:hover {
+  border-top-color: rgba(125, 211, 252, 0.42);
+  background: linear-gradient(180deg, rgba(8, 28, 44, 0.0), rgba(11, 39, 56, 0.32));
+}
+
+.atlas-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.atlas-card__num {
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--primary);
+  opacity: 0.85;
+}
+
+.atlas-card__district {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--primary-soft);
+}
+
+.atlas-card__heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: #f0f9ff;
+  margin-bottom: 0.65rem;
+  letter-spacing: -0.005em;
+}
+
+.atlas-card__body {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  margin-bottom: 1.1rem;
+}
+
+.atlas-card__tags {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.atlas-card__tags li {
+  font-family: var(--font-code);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(186, 230, 253, 0.78);
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(2, 8, 15, 0.32);
 }
 
 /* =============================================================
@@ -778,6 +861,7 @@ canvas {
   position: relative;
   padding: 18rem 0 16rem;
   min-height: 100vh;
+  scroll-margin-top: 96px;
 }
 
 .zone + .zone {
@@ -1056,6 +1140,290 @@ canvas {
 .action--ghost:hover {
   background: rgba(56, 189, 248, 0.08);
   box-shadow: none;
+}
+
+/* =============================================================
+ * Explore link — animated CTA used at the bottom of each landing teaser
+ * ============================================================= */
+
+.explore-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 2.5rem;
+  padding: 0.4rem 0.2rem 0.4rem 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--primary-soft);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.explore-link__label {
+  position: relative;
+  padding-bottom: 4px;
+  transition: color var(--dur-med) var(--ease-deep);
+}
+
+.explore-link__label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary), rgba(56, 189, 248, 0));
+  transform-origin: left center;
+  transform: scaleX(0.35);
+  transition: transform var(--dur-med) var(--ease-deep);
+}
+
+.explore-link__rule {
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0));
+  transition: width var(--dur-med) var(--ease-deep);
+}
+
+.explore-link__arrow {
+  font-size: 1.1rem;
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+  transform: translateX(0);
+  transition: transform var(--dur-med) var(--ease-deep);
+}
+
+.explore-link:hover .explore-link__label {
+  color: var(--primary-bright);
+}
+.explore-link:hover .explore-link__label::after {
+  transform: scaleX(1);
+}
+.explore-link:hover .explore-link__rule {
+  width: 96px;
+}
+.explore-link:hover .explore-link__arrow {
+  transform: translateX(8px);
+}
+
+/* Each teaser fills a full viewport so reaching the next zone always costs
+   a full screen of scroll — preserves the descent narrative. The content is
+   vertically centred so it doesn't sit awkwardly against either edge. */
+.zone--teaser {
+  min-height: 100vh;
+  padding: 6rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.zone--teaser .shell {
+  width: 100%;
+}
+
+.zone__teaser-body {
+  max-width: 60ch;
+}
+
+@media (max-width: 720px) {
+  .zone--teaser {
+    min-height: auto;
+    padding: 8rem 0;
+  }
+}
+
+/* =============================================================
+ * Deep-dive page (per-zone route)
+ * ============================================================= */
+
+.app--deep {
+  /* Per-zone background lives on .app--zone-{slug} so the deep-dive page
+     and the static fill behind it both shift with depth. */
+  background: var(--surface-6);
+}
+
+.deep-dive {
+  position: relative;
+  z-index: 1;
+  padding: 7rem 0 6rem;
+  min-height: 100vh;
+}
+
+.deep-dive__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 3rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.65rem;
+  background: rgba(2, 8, 15, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 999px;
+  color: var(--primary-soft);
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-med) var(--ease-deep), border-color var(--dur-med) var(--ease-deep), transform var(--dur-med) var(--ease-deep);
+}
+
+.deep-dive__back:hover {
+  background: rgba(11, 39, 56, 0.7);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateX(-4px);
+}
+
+.deep-dive__back .icon {
+  font-size: 1rem;
+}
+
+.deep-dive__head {
+  margin-bottom: 4rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  align-items: end;
+}
+
+.deep-dive__eyebrow {
+  grid-column: 1 / 2;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deep-dive__eyebrow::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: rgba(56, 189, 248, 0.5);
+}
+
+.deep-dive__title {
+  grid-column: 1 / 2;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: #f0f9ff;
+}
+
+.deep-dive__telemetry {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: right;
+  font-family: var(--font-code);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: rgba(56, 189, 248, 0.55);
+  text-transform: uppercase;
+  align-self: end;
+}
+
+.deep-dive__subtitle {
+  grid-column: 1 / -1;
+  margin-top: 1.25rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--on-surface-variant);
+  max-width: 72ch;
+}
+
+@media (max-width: 720px) {
+  .deep-dive__head {
+    grid-template-columns: 1fr;
+  }
+  .deep-dive__telemetry {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    text-align: left;
+  }
+}
+
+.deep-dive__atlas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .deep-dive__atlas { grid-template-columns: 1fr; }
+}
+
+/* Tag pills become real links on the deep-dive page. */
+.atlas-card--deep {
+  background: rgba(8, 28, 44, 0.55);
+  border: 1px solid rgba(125, 211, 252, 0.1);
+  border-radius: var(--radius-lg);
+  border-top: 1px solid rgba(125, 211, 252, 0.32);
+  padding: 1.65rem 1.55rem;
+}
+
+/* Linked + non-linked tags share the same pill chrome so the row reads as
+   one consistent palette. The only visual difference is the small external-
+   link arrow on the items that resolve to a homepage URL. */
+.atlas-card__tags--linked li {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.atlas-card__tags--linked > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(2, 8, 15, 0.36);
+  color: rgba(186, 230, 253, 0.78);
+  font-family: var(--font-code);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-deep), border-color var(--dur-fast) var(--ease-deep), background var(--dur-fast) var(--ease-deep);
+}
+
+.atlas-card__tags--linked a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: inherit;
+  text-decoration: none;
+  /* The chrome lives on the <li> so the link sits flush inside it. */
+  margin: -0.25rem -0.55rem;
+  padding: 0.25rem 0.55rem;
+}
+
+.atlas-card__tags--linked > li:has(a):hover,
+.atlas-card__tags--linked > li:focus-within {
+  color: #f0f9ff;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(11, 39, 56, 0.7);
+}
+
+.atlas-card__ext {
+  font-size: 0.85rem;
+  opacity: 0.75;
 }
 
 /* =============================================================
