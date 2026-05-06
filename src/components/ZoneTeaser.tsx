@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import type { Zone } from '../data/zones';
 import { ExploreLink } from './Hero';
+import { ZoneOrbit, hashSeed } from './ZoneOrbit';
 
 interface ZoneTeaserProps {
   zone: Zone;
@@ -20,8 +21,10 @@ const fadeUp = {
 export function ZoneTeaser({ zone, onExplore }: ZoneTeaserProps) {
   return (
     <section id={zone.id} className="zone zone--teaser">
-      <div className="shell">
+      <div className="shell zone__stage">
+        {zone.orbit && <ZoneOrbit items={zone.orbit} seed={hashSeed(zone.slug)} />}
         <motion.div
+          className="zone__content"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.35 }}
