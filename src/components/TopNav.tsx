@@ -7,7 +7,7 @@ const links = [
 ];
 
 export function TopNav() {
-  const [, setActive] = useState('SURFACE');
+  const [_, setActive] = useState('SURFACE');
 
   useEffect(() => {
     const handler = () => {
