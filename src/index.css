@@ -202,6 +202,23 @@ canvas {
   padding: 0 var(--gap-xl);
 }
 
+/* The depth rail is `position: fixed; right: 1.75rem` and is roughly
+   6rem wide once the longest uppercase label ("TWILIGHT" at 0.32em
+   letter-spacing) is laid out. Between ~901px (where the rail starts
+   showing) and ~1500px (where the natural centering of the 1280px-max
+   shell leaves enough breathing room on each side), the shell's right
+   edge butts directly against the rail and zone titles / telemetry
+   readouts visibly clip into it.
+   This rule reserves rail-width worth of right padding inside the
+   shell across that exact band so nothing collides. Above 1500px the
+   natural centering already provides the gap; below 900px the rail
+   itself is hidden, so neither breakpoint needs the override. */
+@media (min-width: 901px) and (max-width: 1500px) {
+  .shell {
+    padding-right: calc(var(--gap-xl) + 5.5rem);
+  }
+}
+
 @media (max-width: 900px) {
   .shell {
     padding: 0 var(--gap-md);
@@ -829,17 +846,27 @@ canvas {
 .surface-entry {
   position: relative;
   min-height: 100vh;
+  /* Prefer dynamic viewport height where supported so the section
+     respects iOS Safari's collapsing address bar instead of jumping
+     around when it appears/disappears. */
+  min-height: 100dvh;
   overflow: hidden;
   scroll-margin-top: 96px;
+  /* Flex-center the headline block in the available space, leaving room
+     at top for the topnav and at bottom for the scroll-hint. This is
+     more robust than `position: absolute; top: 14vh` because it works
+     at every viewport height and survives the iOS address bar. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.25rem 9rem;
 }
 
 /* Outer wrapper handles the entrance animation. */
 .surface-entry__center {
-  position: absolute;
-  top: 14vh;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   width: clamp(300px, 60vw, 720px);
+  max-width: 100%;
   z-index: 2;
   text-align: center;
 }
@@ -903,10 +930,26 @@ canvas {
   font-weight: 500;
   font-size: clamp(2rem, 4vw, 3.4rem);
   line-height: 1.1;
-  color: #06121c;
-  text-shadow: 0 1px 14px rgba(255, 255, 255, 0.22);
+  /* Same bioluminescent gradient + soft cyan halo as `.hero__title` and
+     `.zone__title`, so the surface headline sits in the same
+     typographic family. The previous dark fill was tuned for the bright
+     sky, but the headline often lands over the dark water now that the
+     surface entry flex-centers — dark italic on dark water doesn't
+     read. */
+  color: #f0f9ff;
+  background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 60%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(2, 8, 15, 0.55))
+          drop-shadow(0 0 18px rgba(56, 189, 248, 0.18));
   letter-spacing: -0.01em;
   margin: 0;
+  /* Long words and the trailing period+cursor must never push past the
+     viewport edge on a 320px screen. */
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 /* Glowing cyan period \u2014 the typographic equivalent of a depth marker.
@@ -968,17 +1011,21 @@ canvas {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 0.65rem 1.25rem;
+  /* Generous row+column gap replaces the old `::before` diamond
+     separators. Wrap-safe by definition. */
+  gap: 0.75rem 2rem;
   font-family: var(--font-code);
   font-size: 0.62rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(8, 22, 32, 0.92);
-  /* Strong soft halo so the metadata reads against either the bright
-     sky or the darker water below the horizon line. */
+  color: rgba(226, 232, 240, 0.95);
+  /* Layered dark halo so the meta stays legible over the deep ocean
+     below the horizon line. The previous white halo was tuned for the
+     bright sky, but the strip almost always sits over the darker water
+     where light text on a soft black glow reads cleanly. */
   text-shadow:
-    0 0 6px rgba(255, 255, 255, 0.55),
-    0 0 12px rgba(255, 255, 255, 0.25);
+    0 1px 2px rgba(2, 8, 15, 0.9),
+    0 0 12px rgba(2, 8, 15, 0.55);
 }
 
 .surface-entry__meta li {
@@ -996,22 +1043,19 @@ canvas {
   display: none;
 }
 
-/* Thin diamond separator between meta items so the row reads as a
-   structured strip, not a line of independent labels. */
-.surface-entry__meta li + li::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin-right: 1.2rem;
-  margin-left: -1.2rem;
-  background: rgba(8, 22, 32, 0.45);
-  transform: rotate(45deg);
-}
+/* Separator between meta items: handled by `gap` on the parent rather
+   than a `::before` pseudo-element. The pseudo pattern is fragile under
+   `flex-wrap` — it wraps with its `<li>`, leaving a stray diamond at
+   the start of any row that wraps. The icons inside each item already
+   provide visual punctuation, so a generous gap is enough. */
 
 .surface-entry__meta .icon {
   font-size: 0.95rem;
-  color: rgba(8, 22, 32, 0.7);
+  color: rgba(125, 211, 252, 0.85);
+  /* Same dark halo as the text so the icons read at the same depth. */
+  text-shadow:
+    0 1px 2px rgba(2, 8, 15, 0.85),
+    0 0 8px rgba(2, 8, 15, 0.5);
 }
 
 .surface-entry__meta-dot {
@@ -1032,37 +1076,86 @@ canvas {
 }
 
 @media (max-width: 720px) {
+  .surface-entry {
+    /* Tighter side padding and a smaller bottom reserve - the scroll-hint
+       has its own padding too, and on a 375px phone every horizontal
+       pixel counts. */
+    padding: 5.5rem 1rem 7.5rem;
+  }
   .surface-entry__center {
-    /* Push down enough that the kicker doesn't slide under the topnav. */
-    top: 11vh;
-    width: calc(100% - 2rem);
+    width: 100%;
   }
   .surface-entry__float {
-    gap: 1.15rem;
+    gap: 1.1rem;
+  }
+  .surface-entry__kicker {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.26em;
+  }
+  .surface-entry__wordmark {
+    /* Drop the floor so the headline reliably fits in two lines on a
+       375px viewport without the trailing period + cursor wrapping to a
+       line of their own. */
+    font-size: clamp(1.65rem, 8.5vw, 2.4rem);
+    line-height: 1.15;
+  }
+  .surface-entry__period {
+    /* The italic display font's period sits a touch too high; nudging it
+       down keeps the glow attached to the baseline. */
+    font-size: 1.05em;
+  }
+  .surface-entry__cursor {
+    height: 0.85em;
   }
   .surface-entry__sub {
     font-size: 0.95rem;
     max-width: 38ch;
   }
   .surface-entry__meta {
-    /* Stack vertically on phones \u2014 horizontal flow is too cramped. */
+    /* Stack vertically on mobile. The horizontal-with-wrap pattern
+       leaves a stray leading diamond before any item that wraps onto
+       its own line (the ::before pseudo-element wraps with the li),
+       which reads as a typo. A clean vertical stack with no separators
+       is more legible at this width. */
     flex-direction: column;
-    gap: 0.55rem;
-    font-size: 0.6rem;
+    gap: 0.5rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
   }
-  /* Hide the diamond separators when the strip stacks vertically. */
-  .surface-entry__meta li + li::before {
-    display: none;
+  .surface-entry__meta .icon {
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
-  .surface-entry__center {
-    top: 9vh;
+  .surface-entry {
+    padding: 5rem 0.85rem 6.5rem;
+  }
+  .surface-entry__float {
+    gap: 0.95rem;
   }
   .surface-entry__kicker {
-    font-size: 0.6rem;
-    letter-spacing: 0.24em;
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    padding: 0.35rem 0.75rem;
+  }
+  .surface-entry__wordmark {
+    font-size: clamp(1.5rem, 9vw, 2rem);
+  }
+}
+
+/* Short-but-wide viewports (landscape phones) - reduce vertical padding
+   so the headline stays visible above the keyboard / bottom chrome. */
+@media (max-height: 600px) and (orientation: landscape) {
+  .surface-entry {
+    padding: 4rem 1.25rem 5rem;
+  }
+  .surface-entry__float {
+    gap: 0.85rem;
+  }
+  .surface-entry__wordmark {
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
   }
 }
 
@@ -1149,6 +1242,53 @@ canvas {
 @keyframes hint-arrow {
   0%, 100% { transform: translateY(0); opacity: 0.85; }
   50% { transform: translateY(3px); opacity: 1; }
+}
+
+/* Mobile — collapse the scroll-hint to a minimal chevron-only affordance.
+   The full chip + falling-bead rail reads as a comically oversized
+   marketing block on a 375px viewport, and the chip text wraps to two
+   lines because the icon eats half the available width. A bouncing
+   chevron is universally understood as "scroll down" and stays out of
+   the way of the headline. */
+@media (max-width: 720px) {
+  .scroll-hint {
+    /* Sit roughly a third of the viewport up from the bottom so the
+       chevron is comfortably above the mobile tab bar AND in the
+       natural eye-line below the headline — anchoring it just above
+       the tab bar (the previous calc(72px + …) value) buried it in the
+       bottom chrome and made it read as part of the nav rather than a
+       scroll affordance. */
+    bottom: calc(18vh + env(safe-area-inset-bottom));
+  }
+  .scroll-hint__btn {
+    gap: 0.5rem;
+  }
+  .scroll-hint__chip {
+    /* Square it down to an icon-only circle. No text, no padding waste,
+       no wrap surprises. */
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+    background: rgba(2, 8, 15, 0.65);
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.22);
+  }
+  /* Hide the text label \u2014 only the chevron remains. The :not(.icon)
+     selector targets the second <span> in the chip's children. */
+  .scroll-hint__chip > span:not(.icon) {
+    display: none;
+  }
+  .scroll-hint__chip .icon {
+    font-size: 1.35rem;
+    margin: 0;
+  }
+  /* Drop the falling-bead rail \u2014 the chevron's own bounce animation is
+     enough cue, and the rail adds another 56px of vertical chrome that
+     pushes the affordance off the screen on short phones. */
+  .scroll-hint__rail {
+    display: none;
+  }
 }
 
 .surface-entry__waterline {
@@ -1373,22 +1513,34 @@ canvas {
 
 .zone {
   position: relative;
-  padding: 18rem 0 16rem;
-  min-height: 100vh;
+  /* Generous vertical padding gives the descent a real sense of
+     distance — the user should feel they have to scroll for a beat
+     before the next zone arrives, not have it crash in immediately
+     after the current one's CTA. The `min-height: 110vh` guarantees
+     each zone is at least slightly taller than the viewport, so the
+     in-view animation on the next zone has time to kick in *after*
+     the current one has scrolled past. */
+  padding: 22rem 0 20rem;
+  min-height: 110vh;
   scroll-margin-top: 96px;
 }
 
 .zone + .zone {
-  padding-top: 14rem;
+  /* Consecutive zones add their own bottom padding (20rem) to the
+     22rem top here, producing a ~42rem (≈672px) breathing gap between
+     content blocks on desktop. */
+  padding-top: 22rem;
 }
 
 @media (max-width: 900px) {
   .zone {
-    padding: 10rem 0 9rem;
+    /* Roughly proportional bump on mobile — keeps the same "press
+       through the deep" pacing without doubling the page length. */
+    padding: 14rem 0 12rem;
     min-height: auto;
   }
   .zone + .zone {
-    padding-top: 9rem;
+    padding-top: 14rem;
   }
 }
 
@@ -1707,6 +1859,26 @@ canvas {
   }
 }
 
+@media (max-width: 720px) {
+  /* Slimmer card padding on phones — `2rem` everywhere costs ~64px of
+     horizontal room, which is brutal on a 375px viewport. */
+  .card {
+    padding: 1.4rem;
+    border-radius: var(--radius-lg);
+  }
+  /* Tighter title + body so the card content feels balanced against the
+     reduced padding. */
+  .card__title {
+    font-size: 1.4rem;
+    line-height: 1.25;
+    margin-bottom: 0.65rem;
+  }
+  .card__body {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
 .card__eyebrow {
   display: flex;
   align-items: center;
@@ -1852,6 +2024,34 @@ canvas {
 .action--ghost:hover {
   background: rgba(56, 189, 248, 0.08);
   box-shadow: none;
+}
+
+@media (max-width: 720px) {
+  /* Tighter, less-chunky CTAs on mobile. The desktop padding/letter-
+     spacing reads as deliberate; on a 375px phone it makes the buttons
+     feel like over-engineered slabs. */
+  .action {
+    padding: 0.7rem 1.1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    gap: 0.5rem;
+    /* Centre the icon+label inside whatever width the button gets,
+       including when its parent stretches it to full row width. */
+    justify-content: center;
+  }
+  /* Secondary action — drop the box-shadow weight, keep the outline only,
+     and shrink it slightly so the primary CTA owns the hierarchy. */
+  .action--ghost {
+    padding: 0.6rem 1rem;
+    font-size: 0.72rem;
+    background: transparent;
+  }
+  /* When buttons live inside a flex/wrap row inside a contact card, let
+     them go full-width once they wrap — single-column iOS-app style is
+     cleaner than half-stretched buttons sitting beside whitespace. */
+  .card .action {
+    flex: 1 1 100%;
+  }
 }
 
 /* =============================================================
@@ -2328,13 +2528,30 @@ canvas {
   padding: 0 var(--gap-xl);
 }
 
-/* --- Telemetry strip ---------------------------------------------- */
+/* --- Telemetry strip ----------------------------------------------
+ *
+ * Layout strategy: a CSS grid of labelled key/value groups that scales
+ * from a single horizontal row on desktop down to a stacked two-column
+ * (key | value) layout on mobile, with no inline separators required.
+ *
+ *   - Desktop (>=900px):  4 columns, telemetry groups inline, copyright
+ *                         pushed to the right via auto column.
+ *   - Tablet (720-900px): 2x2 grid, copyright spans both columns.
+ *   - Mobile (<720px):    Single column, key/value rows aligned in a
+ *                         vertical edge, copyright centred below a
+ *                         hairline divider.
+ *
+ * The inline `·` separators in the JSX are always hidden — CSS gap and
+ * grid lines handle separation, and that lets the layout reflow without
+ * stray punctuation hanging at row edges.
+ * ------------------------------------------------------------------ */
 
 .foot__telemetry {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, max-content) 1fr;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  column-gap: 2.25rem;
+  row-gap: 0.6rem;
   padding: 1.25rem 0 0;
   font-family: var(--font-code);
   font-size: 0.65rem;
@@ -2347,20 +2564,29 @@ canvas {
 
 .foot__telemetry-group {
   display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.55rem;
+  /* Keep the key+value pair from breaking apart across a column wrap. */
+  min-width: 0;
 }
 
 .foot__telemetry-group--copyright {
+  /* Push the copyright to the far right of the row on desktop. */
+  justify-self: end;
   align-items: center;
 }
 
 .foot__telemetry-key {
   color: rgba(148, 163, 184, 0.55);
+  flex-shrink: 0;
 }
 
 .foot__telemetry-val {
   color: var(--primary-soft);
+  /* Allow long values (the Stack list) to wrap inside their column
+     instead of forcing the row to grow. */
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .foot__telemetry-stack {
@@ -2368,13 +2594,12 @@ canvas {
   letter-spacing: 0.08em;
 }
 
-.foot__telemetry-sep {
-  color: rgba(148, 163, 184, 0.3);
-}
-
+/* Inline separator chars and the legacy spacer node belong to the old
+   flex-wrap layout — the grid handles spacing now, so suppress them at
+   every width to keep the row visually clean. */
+.foot__telemetry-sep,
 .foot__telemetry-spacer {
-  flex: 1;
-  min-width: 1rem;
+  display: none;
 }
 
 .foot__telemetry-dot {
@@ -2388,16 +2613,64 @@ canvas {
 
 /* --- Responsive ---------------------------------------------------- */
 
-@media (max-width: 640px) {
+/* Tablet — drop to a 2-column grid so the long Stack value gets a full
+   row to itself instead of squeezing the Pressure group off-screen. */
+@media (max-width: 900px) {
   .foot__telemetry {
-    gap: 0.65rem;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1.5rem;
   }
-  .foot__telemetry-spacer {
-    display: none;
+  .foot__telemetry-group--copyright {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(56, 189, 248, 0.08);
   }
-  .foot__telemetry-stack {
-    /* Wraps gracefully if it overflows. */
-    word-break: break-word;
+}
+
+/* Mobile — fully stacked with each key/value on its own row, copyright
+   centred below a hairline divider. */
+@media (max-width: 720px) {
+  .foot {
+    /* Less vertical fat — the descent above is already long. */
+    padding: calc(48px + 0.5rem) 0 1rem;
+  }
+  .foot__blend {
+    height: 48px;
+  }
+  .foot__shell {
+    padding: 0 1.25rem;
+  }
+  .foot__telemetry {
+    column-gap: 0.85rem;
+    row-gap: 0.6rem;
+    padding-top: 1rem;
+    align-items: start;
+  }
+  /* Each labelled group hands its key/value to the parent grid via
+     `display: contents`, so they line up in a clean vertical edge. */
+  .foot__telemetry-group {
+    display: contents;
+  }
+  .foot__telemetry-group--copyright {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: center;
+    margin-top: 0.6rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(56, 189, 248, 0.08);
+  }
+  .foot__telemetry-key {
+    align-self: start;
+    /* Reserve the same column width for every key so the values line
+       up in a tidy vertical edge. */
+    min-width: 4.5rem;
+  }
+  .foot__telemetry-val {
+    align-self: start;
+    line-height: 1.6;
   }
 }
 

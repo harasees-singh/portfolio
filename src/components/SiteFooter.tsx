@@ -19,8 +19,12 @@ export function SiteFooter() {
       <div className="foot__blend" aria-hidden />
 
       <div className="foot__shell">
-        {/* --- Telemetry strip --------------------------------------- */}
-        <div className="foot__telemetry" role="contentinfo">
+        {/* --- Telemetry strip ---------------------------------------
+            The wrapping <footer> already exposes the `contentinfo`
+            landmark implicitly, so this inner strip is just a styled
+            container — adding a second `role="contentinfo"` here would
+            create a duplicate landmark and trip every a11y audit. */}
+        <div className="foot__telemetry">
           <div className="foot__telemetry-group">
             <span className="foot__telemetry-key">Build</span>
             <span className="foot__telemetry-val">{version}</span>

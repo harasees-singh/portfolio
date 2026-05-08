@@ -37,11 +37,6 @@ export function SurfaceEntry() {
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 7, ease: 'easeInOut', repeat: Infinity }}
           >
-            <span className="surface-entry__kicker">
-              <span className="surface-entry__kicker-dot" aria-hidden />
-              <span>Field Notes · 2026</span>
-            </span>
-
             <h2 className="surface-entry__wordmark">
               A deep dive into my work
               <span className="surface-entry__period" aria-hidden>.</span>
