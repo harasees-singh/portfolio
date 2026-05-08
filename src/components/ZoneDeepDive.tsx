@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import type { District, Zone } from '../data/zones';
+import type { Chapter, Zone } from '../data/zones';
 import { techLinks } from '../data/techLinks';
 
 interface ZoneDeepDiveProps {
@@ -14,9 +14,13 @@ const fadeUp = {
 };
 
 /**
- * Full-page deep dive for a single zone — replaces the landing view when the
- * URL hash matches a zone slug. Renders the zone's atlas with each tag
- * resolved to its homepage link via {@link techLinks}.
+ * Full-page deep dive for a single zone.
+ *
+ * Renders the zone as a vertical "field log" timeline rather than a grid of
+ * tech-stack cards. Each chapter on the rail frames a design *problem* and
+ * tells the conceptual story of how it is approached; tools referenced
+ * along the way live in the link pills below the narrative, where they can
+ * be tapped through to their homepages without crowding the prose.
  */
 export function ZoneDeepDive({ zone, onBack }: ZoneDeepDiveProps) {
   useEffect(() => {
@@ -55,46 +59,53 @@ export function ZoneDeepDive({ zone, onBack }: ZoneDeepDiveProps) {
           <p className="deep-dive__subtitle">{zone.subtitle}</p>
         </motion.header>
 
-        <motion.div
-          className="deep-dive__atlas"
+        {/* Vertical timeline. Numbered chapter "nodes" are connected by a
+            cyan rail down the left, so the page reads as a continuous
+            descent through ideas instead of a grid of disconnected cards. */}
+        <motion.ol
+          className="deep-dive__timeline"
           initial="hidden"
           animate="show"
           variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.25 } } }}
+          aria-label={`${zone.label} chapters`}
         >
-          {zone.districts.map((d) => (
-            <DistrictDeep key={d.number} district={d} />
+          {zone.chapters.map((c) => (
+            <ChapterEntry key={c.number} chapter={c} />
           ))}
-        </motion.div>
+        </motion.ol>
       </div>
     </main>
   );
 }
 
-function DistrictDeep({ district }: { district: District }) {
+function ChapterEntry({ chapter }: { chapter: Chapter }) {
   return (
-    <motion.article className="atlas-card atlas-card--deep" variants={fadeUp}>
-      <div className="atlas-card__head">
-        <span className="atlas-card__num">{district.number}</span>
-        <span className="atlas-card__district">{district.district}</span>
+    <motion.li className="deep-dive__chapter" variants={fadeUp}>
+      <span className="deep-dive__chapter-badge" aria-hidden>
+        {chapter.number}
+      </span>
+      <div className="deep-dive__chapter-body">
+        <h2 className="deep-dive__chapter-problem">{chapter.problem}</h2>
+        <p className="deep-dive__chapter-narrative">{chapter.narrative}</p>
+        <ul className="deep-dive__chapter-tags" aria-label="Tools and concepts">
+          {chapter.tags.map((tag) => {
+            const href = techLinks[tag];
+            if (href) {
+              return (
+                <li key={tag}>
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {tag}
+                    <span className="icon deep-dive__chapter-tag-ext" aria-hidden>
+                      north_east
+                    </span>
+                  </a>
+                </li>
+              );
+            }
+            return <li key={tag}>{tag}</li>;
+          })}
+        </ul>
       </div>
-      <h3 className="atlas-card__heading">{district.heading}</h3>
-      <p className="atlas-card__body">{district.body}</p>
-      <ul className="atlas-card__tags atlas-card__tags--linked">
-        {district.tags.map((tag) => {
-          const href = techLinks[tag];
-          if (href) {
-            return (
-              <li key={tag}>
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  {tag}
-                  <span className="icon atlas-card__ext">north_east</span>
-                </a>
-              </li>
-            );
-          }
-          return <li key={tag}>{tag}</li>;
-        })}
-      </ul>
-    </motion.article>
+    </motion.li>
   );
 }

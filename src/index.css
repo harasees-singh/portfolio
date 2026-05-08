@@ -1762,72 +1762,194 @@ canvas {
   }
 }
 
-.deep-dive__atlas {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
+/* =============================================================
+ * Deep-dive timeline (per-zone story)
+ * The deep-dive page renders each zone as a vertical "field log"
+ * timeline rather than a grid of cards. A thin cyan rail runs down the
+ * left, with numbered chapter badges acting as nodes on it; each
+ * chapter frames a design problem, narrates the conceptual approach,
+ * then surfaces the related tools as link pills underneath. Reads as
+ * one continuous descent through ideas.
+ * ============================================================= */
+
+.deep-dive__timeline {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 4rem;
 }
 
-@media (max-width: 720px) {
-  .deep-dive__atlas { grid-template-columns: 1fr; }
+/* The rail itself \u2014 a hairline cyan gradient that fades out at top and
+   bottom so the timeline doesn't read as a hard pipe but as a current. */
+.deep-dive__timeline::before {
+  content: '';
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: 1.65rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0) 0%,
+    rgba(56, 189, 248, 0.45) 8%,
+    rgba(56, 189, 248, 0.45) 92%,
+    rgba(56, 189, 248, 0) 100%
+  );
 }
 
-/* Tag pills become real links on the deep-dive page. */
-.atlas-card--deep {
-  background: rgba(8, 28, 44, 0.55);
-  border: 1px solid rgba(125, 211, 252, 0.1);
-  border-radius: var(--radius-lg);
-  border-top: 1px solid rgba(125, 211, 252, 0.32);
-  padding: 1.65rem 1.55rem;
+.deep-dive__chapter {
+  position: relative;
+  padding: 1.75rem 0 2.5rem;
 }
 
-/* Linked + non-linked tags share the same pill chrome so the row reads as
-   one consistent palette. The only visual difference is the small external-
-   link arrow on the items that resolve to a homepage URL. */
-.atlas-card__tags--linked li {
+.deep-dive__chapter + .deep-dive__chapter {
+  border-top: 1px dashed rgba(56, 189, 248, 0.10);
+}
+
+/* Chapter badge \u2014 sits ON the rail, two-digit number, glows softly. */
+.deep-dive__chapter-badge {
+  position: absolute;
+  top: 1.6rem;
+  left: -3rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(2, 8, 15, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: var(--primary-bright);
+  font-family: var(--font-code);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  box-shadow:
+    0 0 18px rgba(56, 189, 248, 0.32),
+    inset 0 0 12px rgba(56, 189, 248, 0.10);
+}
+
+.deep-dive__chapter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.deep-dive__chapter-problem {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.35rem, 2.4vw, 1.95rem);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: #f0f9ff;
+  margin: 0;
+  /* Same bioluminescent gradient as the zone titles so chapter problems
+     read as section-mates of the page heading. */
+  background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 65%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.deep-dive__chapter-narrative {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--on-surface);
+  max-width: 68ch;
+  margin: 0;
+}
+
+.deep-dive__chapter-tags {
+  list-style: none;
+  margin: 0;
   padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.atlas-card__tags--linked > li {
+.deep-dive__chapter-tags li {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.25rem 0.55rem;
+  padding: 0.3rem 0.65rem;
   border: 1px solid rgba(125, 211, 252, 0.18);
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   background: rgba(2, 8, 15, 0.36);
   color: rgba(186, 230, 253, 0.78);
   font-family: var(--font-code);
   font-size: 0.65rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: color var(--dur-fast) var(--ease-deep), border-color var(--dur-fast) var(--ease-deep), background var(--dur-fast) var(--ease-deep);
+  transition:
+    color var(--dur-fast) var(--ease-deep),
+    border-color var(--dur-fast) var(--ease-deep),
+    background var(--dur-fast) var(--ease-deep);
 }
 
-.atlas-card__tags--linked a {
+.deep-dive__chapter-tags a {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
   color: inherit;
   text-decoration: none;
   /* The chrome lives on the <li> so the link sits flush inside it. */
-  margin: -0.25rem -0.55rem;
-  padding: 0.25rem 0.55rem;
+  margin: -0.3rem -0.65rem;
+  padding: 0.3rem 0.65rem;
 }
 
-.atlas-card__tags--linked > li:has(a):hover,
-.atlas-card__tags--linked > li:focus-within {
+.deep-dive__chapter-tags li:has(a):hover,
+.deep-dive__chapter-tags li:focus-within {
   color: #f0f9ff;
   border-color: rgba(56, 189, 248, 0.55);
   background: rgba(11, 39, 56, 0.7);
 }
 
-.atlas-card__ext {
+.deep-dive__chapter-tag-ext {
   font-size: 0.85rem;
   opacity: 0.75;
+}
+
+@media (max-width: 720px) {
+  .deep-dive__timeline {
+    padding-left: 3rem;
+  }
+  .deep-dive__timeline::before {
+    left: 1.25rem;
+  }
+  .deep-dive__chapter {
+    padding: 1.25rem 0 2rem;
+  }
+  .deep-dive__chapter-badge {
+    top: 1.1rem;
+    left: -2.4rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 0.7rem;
+  }
+  .deep-dive__chapter-narrative {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .deep-dive__timeline {
+    padding-left: 2.4rem;
+  }
+  .deep-dive__timeline::before {
+    left: 1rem;
+  }
+  .deep-dive__chapter-badge {
+    left: -1.95rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
 }
 
 /* =============================================================
