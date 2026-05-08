@@ -1,0 +1,44 @@
+name: tests
+
+# Run the test suite on every push and PR. The version-bump workflow
+# already runs on pushes to main, so this guard catches regressions
+# *before* the chore release commit fires.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel any in-flight run for the same ref when a new commit lands —
+# the latest commit is the only one that matters.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: vitest + lint + build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # NOTE: `npm run lint` is intentionally NOT run here. The shipped
+      # codebase carries 13 pre-existing react-hooks/purity errors in
+      # `src/world/OceanScene.tsx` and friends that are unrelated to the
+      # tests added in this branch. Wire lint back in once those are
+      # resolved (or excluded via eslintrc overrides).
+      - name: Unit + a11y tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build

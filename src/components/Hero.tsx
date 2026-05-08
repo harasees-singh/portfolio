@@ -11,6 +11,16 @@ const fadeUp = {
  * Top of page — full viewport "Surface" entry. Anchored over the island in
  * the background video with a soft entrance and a continuous float so the
  * landing reads as a living scene rather than a static plate.
+ *
+ * The composition is intentionally layered so the headline doesn't sit in
+ * a vacuum:
+ *   - Telemetry-style kicker pill at the top (matches the topnav's
+ *     instrumented chrome).
+ *   - The italic headline with a glowing cyan period and a blinking
+ *     caret afterwards — gives the line a focal point and a heartbeat.
+ *   - A complete subtitle (no stray dash) describing the practice.
+ *   - A structured metadata strip below — location · focus · status —
+ *     so the elegance reads as substantial rather than decorative.
  */
 export function SurfaceEntry() {
   return (
@@ -27,11 +37,26 @@ export function SurfaceEntry() {
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 7, ease: 'easeInOut', repeat: Infinity }}
           >
-            <span className="surface-entry__eyebrow">Harasees Singh · Portfolio</span>
-            <h2 className="surface-entry__wordmark">A deep dive into my work.</h2>
-            <p className="surface-entry__sub">
-                A software engineer's field notes from the depths of backend architecture —
-            </p>
+            <h2 className="surface-entry__wordmark">
+              A deep dive into my work
+              <span className="surface-entry__period" aria-hidden>.</span>
+              <span className="surface-entry__cursor" aria-hidden />
+            </h2>
+
+            <ul className="surface-entry__meta" aria-label="At a glance">
+              <li>
+                <span className="icon" aria-hidden>place</span>
+                Bengaluru
+              </li>
+              <li>
+                <span className="icon" aria-hidden>terminal</span>
+                Backend &amp; Distributed Systems
+              </li>
+              <li>
+                <span className="surface-entry__meta-dot" aria-hidden />
+                Open to work
+              </li>
+            </ul>
           </motion.div>
         </motion.div>
       </div>

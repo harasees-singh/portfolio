@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    /* `vite/client` exposes the side-effect CSS import declaration plus
+       the `__APP_VERSION__` global; `vitest/globals` brings the
+       describe/it/expect ambient types; `@testing-library/jest-dom`
+       extends `expect` with the dom matchers. */
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    /* Tests use jest-dom + vitest matchers that re-import value bindings;
+       relax verbatimModuleSyntax so the side-effect imports compile. */
+    "verbatimModuleSyntax": false,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  /* Test config covers ONLY test files. The shipped source under
+     `src/` is type-checked by `tsconfig.app.json` with stricter
+     options; including it here would double-check it under a looser
+     config and surface false negatives. The single `globals.d.ts`
+     import is needed so the test compilation knows about the
+     `__APP_VERSION__` constant referenced transitively from
+     SiteFooter. */
+  "include": [
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/globals.d.ts",
+    "vitest.config.ts"
+  ]
+}
