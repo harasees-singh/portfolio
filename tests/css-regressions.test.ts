@@ -104,7 +104,14 @@ describe('css: surface entry (landing hero)', () => {
     // Safari toggled the address bar.
     expect(surface!, 'surface entry must flex-center to survive iOS chrome').toContain('display: flex');
     expect(surface!).toContain('align-items: center');
-    expect(surface!, 'use dvh so the section respects collapsed iOS chrome').toContain('100dvh');
+    // `lvh` (large viewport height) is required, NOT `dvh`. Using
+    // `dvh` here was the source of whole-page jitter when the URL bar
+    // collapsed: the surface section would resize and shift every
+    // section beneath it. `lvh` is the largest possible viewport, so
+    // the section is sized for the URL-bar-hidden case at all times
+    // and never resizes.
+    expect(surface!, 'surface entry must use lvh, not dvh, to avoid URL-bar resize cascade').toContain('100lvh');
+    expect(surface!, 'dvh causes whole-page jitter on URL-bar collapse').not.toContain('100dvh');
   });
 
   it('renders the headline with a layered drop-shadow halo, not a single thin shadow', () => {
@@ -272,21 +279,21 @@ describe('css: mobile tab bar', () => {
 });
 
 describe('css: viewport stability on iOS', () => {
-  it('uses dynamic viewport units (dvh) on body, not static vh', () => {
-    // `min-height: 100vh` on iOS Safari is the height with the URL bar
-    // hidden, so on first load the body is taller than the visible
-    // area. The moment the user scrolls past the end and the URL bar
-    // collapses, the body height stays the same but the viewport grows
-    // — fixed-bottom elements then snap upward to the new viewport
-    // bottom, producing visible jitter. `dvh` tracks the actual
-    // visible area as the URL bar collapses, eliminating the snap.
-    //
-    // The stylesheet has multiple `body { ... }` rule bodies (one
-    // inside the `html, body` reset group, one standalone) and the
-    // dvh declaration lives in the standalone block. Asserting against
-    // the raw CSS catches it regardless of which body block holds the
-    // declaration, so the test stays robust if rules are reorganised.
-    expect(css, 'body must use dvh for iOS URL-bar stability').toMatch(
+  it('uses lvh (large viewport height) on body, not vh or dvh', () => {
+    // `100vh` on iOS Safari is undefined-spec but typically renders as
+    // the URL-bar-hidden value; older browsers treat it as static.
+    // `100dvh` updates on every URL-bar show/hide — which means the
+    // body resizes whenever the bar collapses, dragging the user's
+    // scroll position with it and causing visible jitter at the page
+    // end where Chrome's URL bar repeatedly tries to re-show.
+    // `100lvh` is the largest possible viewport, so the body's
+    // minimum height is stable across URL-bar state. Combined with
+    // the same unit on `.surface-entry`, no element on the page
+    // resizes during URL-bar transitions.
+    expect(css, 'body must use lvh for stable height across URL-bar state').toMatch(
+      /\bbody\s*\{[^}]*min-height:\s*100lvh/,
+    );
+    expect(css, 'body must NOT use dvh — it causes URL-bar resize jitter').not.toMatch(
       /\bbody\s*\{[^}]*min-height:\s*100dvh/,
     );
   });

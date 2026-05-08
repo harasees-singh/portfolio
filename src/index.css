@@ -107,17 +107,19 @@ body {
 
 body {
   overflow-x: hidden;
-  /* Use the dynamic viewport unit so the body's intrinsic height tracks
-     the iOS URL-bar collapse instead of being baked at the URL-bar-
-     hidden value. With `100vh` the body was always taller than the
-     visible area on first load, and the moment the user scrolled past
-     the end the URL bar would collapse and everything would snap
-     upward — the visible jitter the mobile bar exhibited at the bottom
-     of the page. */
-  min-height: 100dvh;
+  /* Use `lvh` (large viewport height) so the body's intrinsic minimum
+     height never changes as the browser's URL bar shows or hides.
+     Combined with `lvh` on `.surface-entry`, no element on the page
+     resizes when the URL bar collapses — which means the body's
+     scroll height is stable, the user's scroll position is stable,
+     and the fixed mobile-bar at `bottom: 0` doesn't have to chase a
+     moving viewport bottom (which was the jitter symptom on Chrome
+     when scrolling past the page end with the URL bar collapsed). */
+  min-height: 100lvh;
   /* Suppress the iOS rubber-band overscroll past the page end. The
      bounce was forcing repeated composites of the mobile-bar's
-     `backdrop-filter`, which was the second source of jitter. */
+     `backdrop-filter`, which compounds the jitter from URL-bar
+     transitions. */
   overscroll-behavior-y: contain;
   background:
     radial-gradient(120% 60% at 50% 0%, rgba(7, 25, 38, 0) 0%, rgba(8, 28, 44, 0.9) 60%, var(--surface-5) 100%),
@@ -857,10 +859,21 @@ canvas {
 .surface-entry {
   position: relative;
   min-height: 100vh;
-  /* Prefer dynamic viewport height where supported so the section
-     respects iOS Safari's collapsing address bar instead of jumping
-     around when it appears/disappears. */
-  min-height: 100dvh;
+  /* Use `lvh` (large viewport height) rather than `dvh` (dynamic
+     viewport height). `dvh` updates on every URL-bar show/hide, which
+     means the surface entry would resize by ~50-80px each time the
+     bar collapses or expands — and because the surface is the first
+     section, every resize cascades down and shifts all content
+     beneath it. That was the source of the whole-page jitter when
+     scrolling near the page end on Chrome / iOS Safari, where the URL
+     bar repeatedly tries to re-show.
+     `lvh` sizes the section as if the URL bar is permanently hidden,
+     so it never resizes. The visible-area difference when the URL bar
+     IS showing is just unused space at the bottom of the section,
+     which is fine — the headline is flex-centered and the scroll-
+     hint sits at the bottom of the visible area via a separate fixed
+     offset. */
+  min-height: 100lvh;
   overflow: hidden;
   scroll-margin-top: 96px;
   /* Flex-center the headline block in the available space, leaving room
