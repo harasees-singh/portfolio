@@ -345,6 +345,14 @@ export function ZoneOrbit({ items, seed }: ZoneOrbitProps) {
               src={iconUrl(b.slug)}
               alt=""
               loading="lazy"
+              /* The bubbles are decorative \u2014 don't compete with hero
+                 video / fonts / app JS for bandwidth on first paint. */
+              decoding="async"
+              fetchPriority="low"
+              /* Reserve aspect ratio so the late-arriving SVG doesn't
+                 cause a layout shift inside the bubble. */
+              width="40"
+              height="40"
               // If the slug 404s (icon not in the registry), remove the
               // whole bubble so the orbit never shows an empty placeholder.
               onError={(e) => {
