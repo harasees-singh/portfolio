@@ -910,6 +910,19 @@ canvas {
   color: #f0f9ff;
   margin-top: 0.35rem;
   max-width: 22ch;
+  /* Subtle bioluminescent gradient — brightens the heading without
+     turning it into a glowing wordmark. The pure-white top fades to the
+     cyan accent over the lower third so the type still reads as a
+     headline first, decorative second. */
+  background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 60%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Soft halo so the gradient still pops on the dark background. The
+     filter target is the *box*, not the text, so we wrap the text in a
+     drop-shadow chain rather than text-shadow (text-shadow doesn't paint
+     correctly on background-clip text). */
+  filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.18));
 }
 
 .hero__subtitle {
@@ -1286,6 +1299,13 @@ canvas {
   color: #f0f9ff;
   margin-top: 0.35rem;
   letter-spacing: -0.01em;
+  /* Same bioluminescent gradient + halo as `.hero__title` so all section
+     headings share the same poppy glow language. */
+  background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 60%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.18));
 }
 
 .zone__telemetry {
@@ -1563,24 +1583,32 @@ canvas {
 }
 
 .explore-link__arrow {
-  font-size: 1.1rem;
-  color: var(--primary);
-  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+  font-size: 1.25rem;
+  color: var(--primary-bright);
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7));
   transform: translateX(0);
-  transition: transform var(--dur-med) var(--ease-deep);
+  transition:
+    transform var(--dur-med) var(--ease-deep),
+    color var(--dur-med) var(--ease-deep),
+    filter var(--dur-med) var(--ease-deep);
 }
 
-.explore-link:hover .explore-link__label {
-  color: var(--primary-bright);
+.explore-link:hover .explore-link__label,
+.explore-link:focus-visible .explore-link__label {
+  color: #f0f9ff;
 }
-.explore-link:hover .explore-link__label::after {
+.explore-link:hover .explore-link__label::after,
+.explore-link:focus-visible .explore-link__label::after {
   transform: scaleX(1);
 }
-.explore-link:hover .explore-link__rule {
+.explore-link:hover .explore-link__rule,
+.explore-link:focus-visible .explore-link__rule {
   width: 96px;
 }
-.explore-link:hover .explore-link__arrow {
-  transform: translateX(8px);
+.explore-link:hover .explore-link__arrow,
+.explore-link:focus-visible .explore-link__arrow {
+  transform: translateX(10px);
+  filter: drop-shadow(0 0 16px rgba(186, 230, 253, 0.95));
 }
 
 /* Each teaser fills a full viewport so reaching the next zone always costs
@@ -1691,6 +1719,11 @@ canvas {
   line-height: 1.1;
   letter-spacing: -0.01em;
   color: #f0f9ff;
+  background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 60%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.20));
 }
 
 .deep-dive__telemetry {
