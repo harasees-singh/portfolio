@@ -11,7 +11,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { useHashRoute } from '../src/useHashRoute';
+import { useHashRoute } from '../../src/hooks/useHashRoute';
 
 describe('useHashRoute', () => {
   beforeEach(() => {

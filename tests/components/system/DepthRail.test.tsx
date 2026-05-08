@@ -7,7 +7,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DepthRail } from '../../src/components/DepthRail';
+import { DepthRail } from '../../../src/components/system/DepthRail';
 
 describe('<DepthRail />', () => {
   it('declares an accessible label for the rail landmark', () => {

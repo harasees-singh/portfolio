@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import type { Zone } from '../data/zones';
-import { ExploreLink } from './Hero';
+import type { Zone } from '../../data/zones';
+import { ExploreLink } from '../landing/Hero';
 import { ZoneOrbit, hashSeed } from './ZoneOrbit';
 
 interface ZoneTeaserProps {

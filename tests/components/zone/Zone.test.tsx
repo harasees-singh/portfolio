@@ -10,7 +10,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Bento, Card, Zone } from '../../src/components/Zone';
+import { Bento, Card, Zone } from '../../../src/components/zone/Zone';
 
 describe('<Zone />', () => {
   it('renders the eyebrow, title, depth, and temp readouts', () => {

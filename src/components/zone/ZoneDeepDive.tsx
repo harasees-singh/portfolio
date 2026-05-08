@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import type { Chapter, Zone } from '../data/zones';
-import { techLinks } from '../data/techLinks';
+import type { Chapter, Zone } from '../../data/zones';
+import { techLinks } from '../../data/techLinks';
 
 interface ZoneDeepDiveProps {
   zone: Zone;

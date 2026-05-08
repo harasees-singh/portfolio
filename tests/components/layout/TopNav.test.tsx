@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { TopNav } from '../../src/components/TopNav';
+import { TopNav } from '../../../src/components/layout/TopNav';
 
 describe('<TopNav />', () => {
   it('renders the brand monogram as a link back to #surface', () => {

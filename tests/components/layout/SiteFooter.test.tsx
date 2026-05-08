@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { SiteFooter } from '../../src/components/SiteFooter';
+import { SiteFooter } from '../../../src/components/layout/SiteFooter';
 
 describe('<SiteFooter />', () => {
   it('renders the contentinfo landmark with a stable id', () => {
