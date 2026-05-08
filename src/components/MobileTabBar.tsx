@@ -31,7 +31,7 @@ const links = [
   },
   {
     label: 'GitHub',
-    href: 'https://github.com/harasees-singh/portfolio',
+    href: 'https://github.com/harasees-singh',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden focusable="false">
         <path
