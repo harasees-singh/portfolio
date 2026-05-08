@@ -231,6 +231,75 @@ describe('css: mobile tab bar', () => {
       /env\(safe-area-inset-bottom\)/,
     );
   });
+
+  it('is GPU-isolated so backdrop-filter does not jitter on iOS scroll', () => {
+    // The bar uses `backdrop-filter: blur(...)` against the scrolling
+    // page. Without its own compositing layer the blur has to be
+    // recomputed on every scroll frame, which produces visible jitter
+    // on iOS Safari rubber-band bounce. `transform: translateZ(0)`
+    // promotes the bar to its own layer; `will-change` keeps it there;
+    // `contain: layout paint style` further isolates the bar's
+    // rendering from the rest of the page.
+    const body = findMediaQuery(css, 'max-width: 720px');
+    expect(body).toBeTruthy();
+    expect(body!, 'mobile bar must be promoted to its own GPU layer').toMatch(
+      /\.mobile-bar\s*\{[^}]*transform:\s*translateZ\(0\)/,
+    );
+    expect(body!, 'mobile bar must hint will-change for the compositor').toMatch(
+      /\.mobile-bar\s*\{[^}]*will-change:\s*transform/,
+    );
+    expect(body!, 'mobile bar must use CSS containment for paint isolation').toMatch(
+      /\.mobile-bar\s*\{[^}]*contain:\s*layout\s+paint\s+style/,
+    );
+  });
+
+  it('reserves enough body padding so the bar reads as anchored, not floating', () => {
+    // The bar is ~63px tall + safe-area inset. Reserving only 64px
+    // leaves zero breathing room between the SiteFooter copyright row
+    // and the bar's top edge — visually the bar then looks detached
+    // from the page rather than anchored to it. The reservation must
+    // cover the bar height + safe-area + a comfortable gap.
+    const body = findMediaQuery(css, 'max-width: 720px');
+    expect(body).toBeTruthy();
+    const match = body!.match(/body\s*\{[^}]*padding-bottom:\s*calc\(\s*(\d+)px\s*\+\s*env\(safe-area-inset-bottom\)/);
+    expect(match, 'body must reserve `calc(<n>px + env(safe-area-inset-bottom))` at the bottom').toBeTruthy();
+    const reservedPx = parseInt(match![1], 10);
+    expect(
+      reservedPx,
+      'reservation must be >= 80px so the SiteFooter has breathing room above the bar',
+    ).toBeGreaterThanOrEqual(80);
+  });
+});
+
+describe('css: viewport stability on iOS', () => {
+  it('uses dynamic viewport units (dvh) on body, not static vh', () => {
+    // `min-height: 100vh` on iOS Safari is the height with the URL bar
+    // hidden, so on first load the body is taller than the visible
+    // area. The moment the user scrolls past the end and the URL bar
+    // collapses, the body height stays the same but the viewport grows
+    // — fixed-bottom elements then snap upward to the new viewport
+    // bottom, producing visible jitter. `dvh` tracks the actual
+    // visible area as the URL bar collapses, eliminating the snap.
+    //
+    // The stylesheet has multiple `body { ... }` rule bodies (one
+    // inside the `html, body` reset group, one standalone) and the
+    // dvh declaration lives in the standalone block. Asserting against
+    // the raw CSS catches it regardless of which body block holds the
+    // declaration, so the test stays robust if rules are reorganised.
+    expect(css, 'body must use dvh for iOS URL-bar stability').toMatch(
+      /\bbody\s*\{[^}]*min-height:\s*100dvh/,
+    );
+  });
+
+  it('contains overscroll on the body so bounce does not jitter fixed elements', () => {
+    // iOS rubber-band overscroll past the page end forces multiple
+    // recomposites of any fixed element with `backdrop-filter` (e.g.
+    // the mobile tab bar), producing a second source of scroll
+    // jitter. `overscroll-behavior-y: contain` suppresses the bounce.
+    expect(css, 'body must contain vertical overscroll').toMatch(
+      /\bbody\s*\{[^}]*overscroll-behavior-y:\s*contain/,
+    );
+  });
 });
 
 describe('css: depth rail vs shell content', () => {

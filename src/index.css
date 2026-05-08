@@ -107,7 +107,18 @@ body {
 
 body {
   overflow-x: hidden;
-  min-height: 100vh;
+  /* Use the dynamic viewport unit so the body's intrinsic height tracks
+     the iOS URL-bar collapse instead of being baked at the URL-bar-
+     hidden value. With `100vh` the body was always taller than the
+     visible area on first load, and the moment the user scrolled past
+     the end the URL bar would collapse and everything would snap
+     upward — the visible jitter the mobile bar exhibited at the bottom
+     of the page. */
+  min-height: 100dvh;
+  /* Suppress the iOS rubber-band overscroll past the page end. The
+     bounce was forcing repeated composites of the mobile-bar's
+     `backdrop-filter`, which was the second source of jitter. */
+  overscroll-behavior-y: contain;
   background:
     radial-gradient(120% 60% at 50% 0%, rgba(7, 25, 38, 0) 0%, rgba(8, 28, 44, 0.9) 60%, var(--surface-5) 100%),
     linear-gradient(180deg, #07212f 0%, #051828 50%, var(--surface-5) 100%);
@@ -2931,12 +2942,30 @@ canvas {
     -webkit-backdrop-filter: blur(18px) saturate(1.1);
     border-top: 1px solid rgba(56, 189, 248, 0.18);
     box-shadow: 0 -8px 24px -8px rgba(0, 0, 0, 0.5);
+    /* Promote the bar to its own compositing layer so the
+       backdrop-filter blur doesn't have to be recomputed against the
+       descent page on every scroll frame. `transform: translateZ(0)`
+       is the most reliable cross-browser hint; `will-change: transform`
+       additionally tells the browser the bar's position is animating
+       implicitly (via fixed positioning) so it stays on its own layer.
+       Without this the blur+box-shadow combo caused visible scroll
+       jitter on iOS Safari rubber-band bounce. */
+    transform: translateZ(0);
+    will-change: transform;
+    /* `contain: layout paint style` further isolates the bar's
+       rendering from the rest of the page so scroll-driven repaints
+       above don't invalidate it. */
+    contain: layout paint style;
   }
 
-  /* Reserve space at the very bottom of the page so the fixed bar never
-     covers the tail of the footer or the contact CTA. */
+  /* Reserve space at the very bottom of the page so the fixed bar
+     never covers the tail of the footer or the contact CTA. The bar
+     is ~63px tall + safe-area inset; reserving 96px gives the
+     SiteFooter copyright row a comfortable breathing gap above the
+     bar so the bar reads as anchored to the page instead of floating
+     above an empty strip. */
   body {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
 
