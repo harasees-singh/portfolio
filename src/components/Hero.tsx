@@ -148,29 +148,3 @@ export function ExploreLink({ label, onClick }: { label: string; onClick: () => 
     </button>
   );
 }
-
-interface DistrictCardProps {
-  districtNumber: string;
-  district: string;
-  heading: string;
-  body: string;
-  tags: string[];
-}
-
-export function DistrictCard({ districtNumber, district, heading, body, tags }: DistrictCardProps) {
-  return (
-    <motion.article className="atlas-card" variants={fadeUp}>
-      <div className="atlas-card__head">
-        <span className="atlas-card__num">{districtNumber}</span>
-        <span className="atlas-card__district">{district}</span>
-      </div>
-      <h3 className="atlas-card__heading">{heading}</h3>
-      <p className="atlas-card__body">{body}</p>
-      <ul className="atlas-card__tags">
-        {tags.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
-    </motion.article>
-  );
-}
