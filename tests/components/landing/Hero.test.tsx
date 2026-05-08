@@ -13,7 +13,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ExploreLink, Hero, ScrollHint, SurfaceEntry } from '../../src/components/Hero';
+import { ExploreLink, Hero, ScrollHint, SurfaceEntry } from '../../../src/components/landing/Hero';
 
 describe('<SurfaceEntry />', () => {
   it('renders the wordmark with the glowing period and blinking cursor', () => {

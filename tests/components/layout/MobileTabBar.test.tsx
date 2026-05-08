@@ -8,7 +8,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
-import { MobileTabBar } from '../../src/components/MobileTabBar';
+import { MobileTabBar } from '../../../src/components/layout/MobileTabBar';
 
 describe('<MobileTabBar />', () => {
   it('declares an accessible label for the nav landmark', () => {

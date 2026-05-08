@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch / agent artefacts. Underscore-prefixed files and `*.diff` /
+# `*.patch` blobs are commonly dropped at the repo root by automated
+# tooling — ignore them by default so they never sneak into a commit.
+_*
+*.diff
+*.patch

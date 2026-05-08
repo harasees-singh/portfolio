@@ -9,7 +9,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react';
  * background, so the critical render path stays small.
  */
 const OceanScene = lazy(() =>
-  import('../world/OceanScene').then((m) => ({ default: m.OceanScene })),
+  import('../../three/OceanScene').then((m) => ({ default: m.OceanScene })),
 );
 
 /**
@@ -282,7 +282,7 @@ function BackgroundStackInteractive({ onReady }: { onReady?: () => void }) {
         <motion.video
           ref={videoRef}
           className="bg-stack__video"
-          src="/camera_lens.mp4"
+          src="/media/camera_lens.mp4"
           autoPlay
           muted
           loop

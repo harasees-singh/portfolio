@@ -109,7 +109,7 @@ if (!window.requestAnimationFrame) {
 // render. None of the tests need its visual output — we only assert that
 // it surfaces an `onReady` signal so the loader can dismiss. Replace it
 // with a tiny stub that fires `onReady` synchronously on mount.
-vi.mock('../src/components/BackgroundStack', () => ({
+vi.mock('../src/components/system/BackgroundStack', () => ({
   BackgroundStack: ({ onReady }: { onReady?: () => void }) => {
     if (onReady) onReady();
     return null;
@@ -121,7 +121,7 @@ vi.mock('../src/components/BackgroundStack', () => ({
 // from the simpleicons CDN, and uses canvas APIs jsdom doesn't ship. The
 // landing page renders fine without it; the tests only need to know that
 // the surrounding zone content is correct.
-vi.mock('../src/components/ZoneOrbit', () => ({
+vi.mock('../src/components/zone/ZoneOrbit', () => ({
   ZoneOrbit: () => null,
   hashSeed: (s: string): number => {
     let h = 2166136261;

@@ -14,12 +14,12 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { axe } from 'vitest-axe';
-import { TopNav } from '../src/components/TopNav';
-import { MobileTabBar } from '../src/components/MobileTabBar';
-import { SiteFooter } from '../src/components/SiteFooter';
-import { LoadingScreen } from '../src/components/LoadingScreen';
-import { ExploreLink, Hero, ScrollHint, SurfaceEntry } from '../src/components/Hero';
-import { Bento, Card, Zone } from '../src/components/Zone';
+import { TopNav } from '../src/components/layout/TopNav';
+import { MobileTabBar } from '../src/components/layout/MobileTabBar';
+import { SiteFooter } from '../src/components/layout/SiteFooter';
+import { LoadingScreen } from '../src/components/system/LoadingScreen';
+import { ExploreLink, Hero, ScrollHint, SurfaceEntry } from '../src/components/landing/Hero';
+import { Bento, Card, Zone } from '../src/components/zone/Zone';
 
 const axeOptions = {
   // Color contrast is computed against actual rendered styles, but

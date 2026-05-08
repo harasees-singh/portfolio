@@ -1,16 +1,16 @@
 import './index.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BackgroundStack } from './components/BackgroundStack';
-import { TopNav } from './components/TopNav';
-import { DepthRail } from './components/DepthRail';
-import { Hero, SurfaceEntry } from './components/Hero';
-import { LoadingScreen } from './components/LoadingScreen';
-import { ZoneTeaser } from './components/ZoneTeaser';
-import { ZoneDeepDive } from './components/ZoneDeepDive';
-import { Bento, Card, Zone } from './components/Zone';
-import { SiteFooter } from './components/SiteFooter';
-import { MobileTabBar } from './components/MobileTabBar';
-import { useHashRoute } from './useHashRoute';
+import { BackgroundStack } from './components/system/BackgroundStack';
+import { TopNav } from './components/layout/TopNav';
+import { DepthRail } from './components/system/DepthRail';
+import { Hero, SurfaceEntry } from './components/landing/Hero';
+import { LoadingScreen } from './components/system/LoadingScreen';
+import { ZoneTeaser } from './components/zone/ZoneTeaser';
+import { ZoneDeepDive } from './components/zone/ZoneDeepDive';
+import { Bento, Card, Zone } from './components/zone/Zone';
+import { SiteFooter } from './components/layout/SiteFooter';
+import { MobileTabBar } from './components/layout/MobileTabBar';
+import { useHashRoute } from './hooks/useHashRoute';
 import { zones, zonesBySlug } from './data/zones';
 
 /** Minimum time the loader stays on screen so it never flashes mid-animation. */

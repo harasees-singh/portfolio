@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { zonesBySlug } from '../data/zones';
-import { ZoneOrbit, hashSeed } from './ZoneOrbit';
+import { zonesBySlug } from '../../data/zones';
+import { ZoneOrbit, hashSeed } from '../zone/ZoneOrbit';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
