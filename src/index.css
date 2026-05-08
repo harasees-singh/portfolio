@@ -107,7 +107,20 @@ body {
 
 body {
   overflow-x: hidden;
-  min-height: 100vh;
+  /* Use `lvh` (large viewport height) so the body's intrinsic minimum
+     height never changes as the browser's URL bar shows or hides.
+     Combined with `lvh` on `.surface-entry`, no element on the page
+     resizes when the URL bar collapses — which means the body's
+     scroll height is stable, the user's scroll position is stable,
+     and the fixed mobile-bar at `bottom: 0` doesn't have to chase a
+     moving viewport bottom (which was the jitter symptom on Chrome
+     when scrolling past the page end with the URL bar collapsed). */
+  min-height: 100lvh;
+  /* Suppress the iOS rubber-band overscroll past the page end. The
+     bounce was forcing repeated composites of the mobile-bar's
+     `backdrop-filter`, which compounds the jitter from URL-bar
+     transitions. */
+  overscroll-behavior-y: contain;
   background:
     radial-gradient(120% 60% at 50% 0%, rgba(7, 25, 38, 0) 0%, rgba(8, 28, 44, 0.9) 60%, var(--surface-5) 100%),
     linear-gradient(180deg, #07212f 0%, #051828 50%, var(--surface-5) 100%);
@@ -846,10 +859,21 @@ canvas {
 .surface-entry {
   position: relative;
   min-height: 100vh;
-  /* Prefer dynamic viewport height where supported so the section
-     respects iOS Safari's collapsing address bar instead of jumping
-     around when it appears/disappears. */
-  min-height: 100dvh;
+  /* Use `lvh` (large viewport height) rather than `dvh` (dynamic
+     viewport height). `dvh` updates on every URL-bar show/hide, which
+     means the surface entry would resize by ~50-80px each time the
+     bar collapses or expands — and because the surface is the first
+     section, every resize cascades down and shifts all content
+     beneath it. That was the source of the whole-page jitter when
+     scrolling near the page end on Chrome / iOS Safari, where the URL
+     bar repeatedly tries to re-show.
+     `lvh` sizes the section as if the URL bar is permanently hidden,
+     so it never resizes. The visible-area difference when the URL bar
+     IS showing is just unused space at the bottom of the section,
+     which is fine — the headline is flex-centered and the scroll-
+     hint sits at the bottom of the visible area via a separate fixed
+     offset. */
+  min-height: 100lvh;
   overflow: hidden;
   scroll-margin-top: 96px;
   /* Flex-center the headline block in the available space, leaving room
@@ -2931,12 +2955,30 @@ canvas {
     -webkit-backdrop-filter: blur(18px) saturate(1.1);
     border-top: 1px solid rgba(56, 189, 248, 0.18);
     box-shadow: 0 -8px 24px -8px rgba(0, 0, 0, 0.5);
+    /* Promote the bar to its own compositing layer so the
+       backdrop-filter blur doesn't have to be recomputed against the
+       descent page on every scroll frame. `transform: translateZ(0)`
+       is the most reliable cross-browser hint; `will-change: transform`
+       additionally tells the browser the bar's position is animating
+       implicitly (via fixed positioning) so it stays on its own layer.
+       Without this the blur+box-shadow combo caused visible scroll
+       jitter on iOS Safari rubber-band bounce. */
+    transform: translateZ(0);
+    will-change: transform;
+    /* `contain: layout paint style` further isolates the bar's
+       rendering from the rest of the page so scroll-driven repaints
+       above don't invalidate it. */
+    contain: layout paint style;
   }
 
-  /* Reserve space at the very bottom of the page so the fixed bar never
-     covers the tail of the footer or the contact CTA. */
+  /* Reserve space at the very bottom of the page so the fixed bar
+     never covers the tail of the footer or the contact CTA. The bar
+     is ~63px tall + safe-area inset; reserving 96px gives the
+     SiteFooter copyright row a comfortable breathing gap above the
+     bar so the bar reads as anchored to the page instead of floating
+     above an empty strip. */
   body {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 }
 

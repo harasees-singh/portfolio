@@ -104,7 +104,14 @@ describe('css: surface entry (landing hero)', () => {
     // Safari toggled the address bar.
     expect(surface!, 'surface entry must flex-center to survive iOS chrome').toContain('display: flex');
     expect(surface!).toContain('align-items: center');
-    expect(surface!, 'use dvh so the section respects collapsed iOS chrome').toContain('100dvh');
+    // `lvh` (large viewport height) is required, NOT `dvh`. Using
+    // `dvh` here was the source of whole-page jitter when the URL bar
+    // collapsed: the surface section would resize and shift every
+    // section beneath it. `lvh` is the largest possible viewport, so
+    // the section is sized for the URL-bar-hidden case at all times
+    // and never resizes.
+    expect(surface!, 'surface entry must use lvh, not dvh, to avoid URL-bar resize cascade').toContain('100lvh');
+    expect(surface!, 'dvh causes whole-page jitter on URL-bar collapse').not.toContain('100dvh');
   });
 
   it('renders the headline with a layered drop-shadow halo, not a single thin shadow', () => {
@@ -229,6 +236,75 @@ describe('css: mobile tab bar', () => {
     expect(body!, 'mobile bar must show on phones').toMatch(/\.mobile-bar\s*\{[^}]*display:\s*flex/);
     expect(body!, 'mobile bar must respect the iOS home-indicator safe area').toMatch(
       /env\(safe-area-inset-bottom\)/,
+    );
+  });
+
+  it('is GPU-isolated so backdrop-filter does not jitter on iOS scroll', () => {
+    // The bar uses `backdrop-filter: blur(...)` against the scrolling
+    // page. Without its own compositing layer the blur has to be
+    // recomputed on every scroll frame, which produces visible jitter
+    // on iOS Safari rubber-band bounce. `transform: translateZ(0)`
+    // promotes the bar to its own layer; `will-change` keeps it there;
+    // `contain: layout paint style` further isolates the bar's
+    // rendering from the rest of the page.
+    const body = findMediaQuery(css, 'max-width: 720px');
+    expect(body).toBeTruthy();
+    expect(body!, 'mobile bar must be promoted to its own GPU layer').toMatch(
+      /\.mobile-bar\s*\{[^}]*transform:\s*translateZ\(0\)/,
+    );
+    expect(body!, 'mobile bar must hint will-change for the compositor').toMatch(
+      /\.mobile-bar\s*\{[^}]*will-change:\s*transform/,
+    );
+    expect(body!, 'mobile bar must use CSS containment for paint isolation').toMatch(
+      /\.mobile-bar\s*\{[^}]*contain:\s*layout\s+paint\s+style/,
+    );
+  });
+
+  it('reserves enough body padding so the bar reads as anchored, not floating', () => {
+    // The bar is ~63px tall + safe-area inset. Reserving only 64px
+    // leaves zero breathing room between the SiteFooter copyright row
+    // and the bar's top edge — visually the bar then looks detached
+    // from the page rather than anchored to it. The reservation must
+    // cover the bar height + safe-area + a comfortable gap.
+    const body = findMediaQuery(css, 'max-width: 720px');
+    expect(body).toBeTruthy();
+    const match = body!.match(/body\s*\{[^}]*padding-bottom:\s*calc\(\s*(\d+)px\s*\+\s*env\(safe-area-inset-bottom\)/);
+    expect(match, 'body must reserve `calc(<n>px + env(safe-area-inset-bottom))` at the bottom').toBeTruthy();
+    const reservedPx = parseInt(match![1], 10);
+    expect(
+      reservedPx,
+      'reservation must be >= 80px so the SiteFooter has breathing room above the bar',
+    ).toBeGreaterThanOrEqual(80);
+  });
+});
+
+describe('css: viewport stability on iOS', () => {
+  it('uses lvh (large viewport height) on body, not vh or dvh', () => {
+    // `100vh` on iOS Safari is undefined-spec but typically renders as
+    // the URL-bar-hidden value; older browsers treat it as static.
+    // `100dvh` updates on every URL-bar show/hide — which means the
+    // body resizes whenever the bar collapses, dragging the user's
+    // scroll position with it and causing visible jitter at the page
+    // end where Chrome's URL bar repeatedly tries to re-show.
+    // `100lvh` is the largest possible viewport, so the body's
+    // minimum height is stable across URL-bar state. Combined with
+    // the same unit on `.surface-entry`, no element on the page
+    // resizes during URL-bar transitions.
+    expect(css, 'body must use lvh for stable height across URL-bar state').toMatch(
+      /\bbody\s*\{[^}]*min-height:\s*100lvh/,
+    );
+    expect(css, 'body must NOT use dvh — it causes URL-bar resize jitter').not.toMatch(
+      /\bbody\s*\{[^}]*min-height:\s*100dvh/,
+    );
+  });
+
+  it('contains overscroll on the body so bounce does not jitter fixed elements', () => {
+    // iOS rubber-band overscroll past the page end forces multiple
+    // recomposites of any fixed element with `backdrop-filter` (e.g.
+    // the mobile tab bar), producing a second source of scroll
+    // jitter. `overscroll-behavior-y: contain` suppresses the bounce.
+    expect(css, 'body must contain vertical overscroll').toMatch(
+      /\bbody\s*\{[^}]*overscroll-behavior-y:\s*contain/,
     );
   });
 });
