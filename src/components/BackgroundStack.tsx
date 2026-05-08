@@ -1,6 +1,16 @@
 import { motion, useMotionValue, useScroll, useTransform, type MotionValue } from 'framer-motion';
-import { useEffect, useRef } from 'react';
-import { OceanScene } from '../world/OceanScene';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+
+/**
+ * The whole Three.js scene (react-three-fiber, drei, three.js itself \u2014
+ * roughly 450kB of JS gzipped to ~130kB) is split into its own chunk and
+ * only loaded after the loader has had a chance to dismiss. The video
+ * provides the first impression while this chunk streams in the
+ * background, so the critical render path stays small.
+ */
+const OceanScene = lazy(() =>
+  import('../world/OceanScene').then((m) => ({ default: m.OceanScene })),
+);
 
 /**
  * Per-zone gradient colour stops the page background interpolates between.
@@ -91,6 +101,30 @@ function StaticBackground({
 
 function BackgroundStackInteractive({ onReady }: { onReady?: () => void }) {
   const { scrollY, scrollYProgress } = useScroll();
+
+  /**
+   * Defer the Three.js canvas mount until the browser is idle so it
+   * doesn't fight the video for the main thread during the first paint.
+   * Falls back to a 1.5s timer for browsers without `requestIdleCallback`
+   * (Safari at time of writing).
+   */
+  const [canvasMounted, setCanvasMounted] = useState(false);
+  useEffect(() => {
+    type RIC = (cb: () => void, opts?: { timeout: number }) => number;
+    const ric: RIC | undefined = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback;
+    let raf = 0;
+    let timer = 0;
+    if (ric) {
+      raf = ric(() => setCanvasMounted(true), { timeout: 2000 });
+    } else {
+      timer = window.setTimeout(() => setCanvasMounted(true), 1500);
+    }
+    return () => {
+      const cic = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
+      if (cic && raf) cic(raf);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, []);
 
   // Continuously interpolate the page-background gradient between adjacent
   // zone colour stops based on each section's pixel position. Result: a
@@ -226,12 +260,18 @@ function BackgroundStackInteractive({ onReady }: { onReady?: () => void }) {
 
   return (
     <div className="bg-stack" aria-hidden="true">
-      {/* Layer 1: 3D ocean lives BEHIND the video so the descent reveals it */}
+      {/* Layer 1: 3D ocean lives BEHIND the video so the descent reveals it.
+          Mounted lazily so the Three.js bundle doesn't fight the video for
+          the main thread during the first paint. */}
       <motion.div
         className="bg-stack__canvas-wrap"
         style={{ opacity: canvasOpacity, position: 'absolute', inset: 0 }}
       >
-        <OceanScene />
+        {canvasMounted && (
+          <Suspense fallback={null}>
+            <OceanScene />
+          </Suspense>
+        )}
       </motion.div>
 
       {/* Layer 2: the receding water surface */}
@@ -247,7 +287,13 @@ function BackgroundStackInteractive({ onReady }: { onReady?: () => void }) {
           muted
           loop
           playsInline
-          preload="auto"
+          /* `preload="metadata"` instead of "auto" \u2014 the full clip is
+             ~5MB. Letting the browser pull just the headers first means
+             the loader can dismiss in well under a second; the rest of
+             the video streams in as it plays. The existing `onCanPlay`
+             listener in this component still fires the loader-ready
+             callback at the right moment. */
+          preload="metadata"
           style={{ scale: videoScale, filter: videoFilter }}
         />
         {/* Caustic horizon line that travels with the surface */}

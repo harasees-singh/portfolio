@@ -34,12 +34,27 @@ export function DepthRail() {
       }
       setActiveIdx(current);
     };
+    /**
+     * rAF-throttle: coalesce every burst of scroll events into a single
+     * frame's worth of work. Stops the per-zone `getBoundingClientRect()`
+     * pass from running multiple times per displayed frame on
+     * high-refresh trackpads / monitors.
+     */
+    let rafScheduled = 0;
+    const onScroll = () => {
+      if (rafScheduled) return;
+      rafScheduled = window.requestAnimationFrame(() => {
+        rafScheduled = 0;
+        handler();
+      });
+    };
     handler();
-    window.addEventListener('scroll', handler, { passive: true });
-    window.addEventListener('resize', handler);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     return () => {
-      window.removeEventListener('scroll', handler);
-      window.removeEventListener('resize', handler);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (rafScheduled) window.cancelAnimationFrame(rafScheduled);
     };
   }, []);
 

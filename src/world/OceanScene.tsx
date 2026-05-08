@@ -7,7 +7,7 @@ import * as THREE from 'three';
  * Marine-snow particle field that drifts upward as the camera "descends".
  * Sparse light orbs become visible in the deeper zones (bioluminescence).
  */
-function MarineSnow({ count = 1400 }: { count?: number }) {
+function MarineSnow({ count = 600 }: { count?: number }) {
   const pointsRef = useRef<THREE.Points>(null);
 
   const { positions, sizes, phases } = useMemo(() => {
@@ -181,8 +181,15 @@ export function OceanScene() {
     <Canvas
       className="bg-stack__canvas"
       camera={{ position: [0, 0, 6], fov: 60, near: 0.1, far: 60 }}
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      /* DPR is the single biggest GPU lever — cap at 1.5 instead of 1.75
+         so high-DPI laptops don't render 3× the pixel count for a
+         decorative background. The visual difference at this scene's
+         opacity is imperceptible; the perf difference is large. */
+      dpr={[1, 1.5]}
+      /* Antialias is expensive on integrated GPUs and the scene is
+         heavily blurred by fog + sits behind a video, so jagged
+         particle edges aren't visible. */
+      gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
     >
       <DepthFog />
       <DescentCamera />

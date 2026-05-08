@@ -132,15 +132,34 @@ export function TopNav({ currentDepth }: { currentDepth?: number } = {}) {
     };
 
     let update = measure();
-    const onScroll = () => update();
+    /**
+     * rAF-throttle: coalesce every burst of scroll events into a single
+     * frame's worth of work. The browser fires `scroll` ~120 Hz on
+     * trackpads and high-refresh monitors; without this we'd be running
+     * `getBoundingClientRect()` and re-rendering twice per displayed
+     * frame for no visible benefit.
+     */
+    let rafScheduled = 0;
+    const onScroll = () => {
+      if (rafScheduled) return;
+      rafScheduled = window.requestAnimationFrame(() => {
+        rafScheduled = 0;
+        update();
+      });
+    };
     const onResize = () => {
-      update = measure();
+      if (rafScheduled) window.cancelAnimationFrame(rafScheduled);
+      rafScheduled = window.requestAnimationFrame(() => {
+        rafScheduled = 0;
+        update = measure();
+      });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      if (rafScheduled) window.cancelAnimationFrame(rafScheduled);
     };
   }, [currentDepth]);
 
