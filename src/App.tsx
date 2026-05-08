@@ -9,6 +9,7 @@ import { ZoneTeaser } from './components/ZoneTeaser';
 import { ZoneDeepDive } from './components/ZoneDeepDive';
 import { Bento, Card, Zone } from './components/Zone';
 import { SiteFooter } from './components/SiteFooter';
+import { MobileTabBar } from './components/MobileTabBar';
 import { useHashRoute } from './useHashRoute';
 import { zones, zonesBySlug } from './data/zones';
 
@@ -60,6 +61,7 @@ export default function App() {
         <TopNav currentDepth={deepDepth} />
         <ZoneDeepDive zone={deepZone} onBack={() => navigate('')} />
         <SiteFooter />
+        <MobileTabBar />
         <LoadingScreen visible={loaderVisible} />
       </div>
     );
@@ -123,6 +125,7 @@ export default function App() {
       </main>
 
       <SiteFooter />
+      <MobileTabBar />
       <LoadingScreen visible={loaderVisible} />
     </div>
   );
